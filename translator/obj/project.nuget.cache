@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "wpQRbaVBuiEKeZdrGd17hqU3aH/4UayDauLVdj9+bvlrrSmUHF8W1ih+737KZ0McRwPAIIOXGw8Goe56CJhHSQ==",
+  "success": true,
+  "projectFilePath": "/home/jakub/Projects/C#/Braille_typewriter_printer/translator/translator.csproj",
+  "expectedPackageFiles": [
+    "/home/jakub/.nuget/packages/microsoft.aspnetcore.app.ref/6.0.2/microsoft.aspnetcore.app.ref.6.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}

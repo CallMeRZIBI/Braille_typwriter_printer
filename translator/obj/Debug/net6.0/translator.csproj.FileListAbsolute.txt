@@ -1,0 +1,15 @@
+/home/jakub/Projects/C#/Braille_typewriter_printer/translator/bin/Debug/net6.0/translator
+/home/jakub/Projects/C#/Braille_typewriter_printer/translator/bin/Debug/net6.0/translator.deps.json
+/home/jakub/Projects/C#/Braille_typewriter_printer/translator/bin/Debug/net6.0/translator.runtimeconfig.json
+/home/jakub/Projects/C#/Braille_typewriter_printer/translator/bin/Debug/net6.0/translator.dll
+/home/jakub/Projects/C#/Braille_typewriter_printer/translator/bin/Debug/net6.0/ref/translator.dll
+/home/jakub/Projects/C#/Braille_typewriter_printer/translator/bin/Debug/net6.0/translator.pdb
+/home/jakub/Projects/C#/Braille_typewriter_printer/translator/obj/Debug/net6.0/translator.csproj.AssemblyReference.cache
+/home/jakub/Projects/C#/Braille_typewriter_printer/translator/obj/Debug/net6.0/translator.GeneratedMSBuildEditorConfig.editorconfig
+/home/jakub/Projects/C#/Braille_typewriter_printer/translator/obj/Debug/net6.0/translator.AssemblyInfoInputs.cache
+/home/jakub/Projects/C#/Braille_typewriter_printer/translator/obj/Debug/net6.0/translator.AssemblyInfo.cs
+/home/jakub/Projects/C#/Braille_typewriter_printer/translator/obj/Debug/net6.0/translator.csproj.CoreCompileInputs.cache
+/home/jakub/Projects/C#/Braille_typewriter_printer/translator/obj/Debug/net6.0/translator.dll
+/home/jakub/Projects/C#/Braille_typewriter_printer/translator/obj/Debug/net6.0/ref/translator.dll
+/home/jakub/Projects/C#/Braille_typewriter_printer/translator/obj/Debug/net6.0/translator.pdb
+/home/jakub/Projects/C#/Braille_typewriter_printer/translator/obj/Debug/net6.0/translator.genruntimeconfig.cache
