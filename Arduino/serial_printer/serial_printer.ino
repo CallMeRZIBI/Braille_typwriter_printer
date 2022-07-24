@@ -35,16 +35,23 @@ const brailleChar brailleDict[] = {{'a', new int[1]{1}, 1},
                                     };
 
 const int brailleDots[] = {2,3,4,5,6,7,8};  // 2 - is for space because it's index is 0 and other ones are then indexed like normally
-const int brailleDotsCount = 7;
+#define brailleDotsCount 7
+#define pressDelay 150
 
 void setup() {
-  for(int i = 0; i < brailleDotsCount; i++){
-    pinMode(brailleDots[i], OUTPUT);
-  }
+  // For some reason setting up pins in for loop is not working properly because the setup just cannot run for loop properly  // For some reason setting up pins in for loop is not working properly because the setup just cannot run for loop properly
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
+  pinMode(8, OUTPUT);
 
   Serial.begin(9600);
 
-  testSequence();
+  //testSequence();
+  //Serial.println("Done test sequence");
 }
 
 void testSequence(){
@@ -78,14 +85,14 @@ void braillePrint(String message){
       if(brailleDict[j].key == message[i]){
         for(int k = 0; k < brailleDict[j].count; k++){
           Serial.print(brailleDict[j].value[k]);
-          pinMode(brailleDots[brailleDict[j].value[k]], HIGH);
+          digitalWrite(brailleDots[brailleDict[j].value[k]], HIGH);
         }
         Serial.print(":");
-        delay(1000);
+        delay(pressDelay);
         for(int k = 0; k < brailleDict[j].count; k++){
-          pinMode(brailleDots[brailleDict[j].value[k]], LOW);
+          digitalWrite(brailleDots[brailleDict[j].value[k]], LOW);
         }
-        delay(1000);
+        delay(pressDelay);
         continue;
       }
     }
