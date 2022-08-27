@@ -1,4 +1,39 @@
-typedef struct{
+#include "TypeWriter.h"
+#define charsInRow 29
+#define pressDelay 150
+
+const int StepPinout[] = {13,12,11,10};
+const int brailleDots[] = {2,3,4,5,6,7,8};  // 2 - is for space because it's index is 0 and other ones are then indexed like normally
+
+TypeWriter BrailleTypeWriter(brailleDots, StepPinout);
+
+void setup(){
+  Serial.begin(9600);
+  BrailleTypeWriter.setParameters(charsInRow, pressDelay);
+}
+
+void loop(){
+  String input = getInput();
+  BrailleTypeWriter.print(input);
+}
+
+String getInput(){
+  while(Serial.available() == 0){
+    return Serial.readString();
+  }
+}
+
+
+
+
+
+//-------------------------------------------------Method without class---------------
+
+
+
+
+
+/*typedef struct{
   char key;
   int *value;
   int count;    // Temporary
@@ -36,7 +71,13 @@ const brailleChar brailleDict[] = {{'a', new int[1]{1}, 1},
 
 const int brailleDots[] = {2,3,4,5,6,7,8};  // 2 - is for space because it's index is 0 and other ones are then indexed like normally
 #define brailleDotsCount 7
+#define charsInRow 29
 #define pressDelay 150
+
+#define STEP_PIN_1 13
+#define STEP_PIN_2 12
+#define STEP_PIN_3 11
+#define STEP_PIN_4 10
 
 void setup() {
   // For some reason setting up pins in for loop is not working properly because the setup just cannot run for loop properly  // For some reason setting up pins in for loop is not working properly because the setup just cannot run for loop properly
@@ -47,6 +88,12 @@ void setup() {
   pinMode(6, OUTPUT);
   pinMode(7, OUTPUT);
   pinMode(8, OUTPUT);
+
+  // Pinmode for stepper motor
+  pinMode(13, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(11, OUTPUT);
+  pinMode(10, OUTPUT);
 
   Serial.begin(9600);
 
@@ -80,19 +127,34 @@ String getInput(){
 void braillePrint(String message){
   if(message == NULL) return;
 
+  int rowPos = 0;
   for(int i = 0; i < message.length(); i++){
     for(int j = 0; j < brailleDLength; j++){
       if(brailleDict[j].key == message[i]){
+
+        // When on the end of line it will go to new line
+        if(rowPos >= charsInRow){
+          Serial.print("\n");
+          newLine();
+          rowPos = 0;
+        }
+
+        // Presses every corresponding solenoid to the character
         for(int k = 0; k < brailleDict[j].count; k++){
           Serial.print(brailleDict[j].value[k]);
           digitalWrite(brailleDots[brailleDict[j].value[k]], HIGH);
         }
+        
         Serial.print(":");
         delay(pressDelay);
+
+        // Releases all of those solenoids
         for(int k = 0; k < brailleDict[j].count; k++){
           digitalWrite(brailleDots[brailleDict[j].value[k]], LOW);
         }
+
         delay(pressDelay);
+        rowPos++;
         continue;
       }
     }
@@ -100,7 +162,83 @@ void braillePrint(String message){
   Serial.println("\ndone");
 }
 
+void newLine(){
+  for(int i = 0; i < 2048 / 12; i++){
+    OneStep(true);
+    delay(2);
+  }
+}
 
+int step_number = 0;
+void OneStep(bool dir){
+  if(dir){
+    switch(step_number){
+      case 0:
+        digitalWrite(STEP_PIN_1, HIGH);
+        digitalWrite(STEP_PIN_2, LOW);
+        digitalWrite(STEP_PIN_3, LOW);
+        digitalWrite(STEP_PIN_4, LOW);
+        break;
+
+      case 1:
+        digitalWrite(STEP_PIN_1, LOW);
+        digitalWrite(STEP_PIN_2, HIGH);
+        digitalWrite(STEP_PIN_3, LOW);
+        digitalWrite(STEP_PIN_4, LOW);
+        break;
+
+      case 2:
+        digitalWrite(STEP_PIN_1, LOW);
+        digitalWrite(STEP_PIN_2, LOW);
+        digitalWrite(STEP_PIN_3, HIGH);
+        digitalWrite(STEP_PIN_4, LOW);
+        break;
+
+      case 3:
+        digitalWrite(STEP_PIN_1, LOW);
+        digitalWrite(STEP_PIN_2, LOW);
+        digitalWrite(STEP_PIN_3, LOW);
+        digitalWrite(STEP_PIN_4, HIGH);
+        break;
+    }      
+  }
+  else{
+    switch(step_number){
+      case 0:
+        digitalWrite(STEP_PIN_1, LOW);
+        digitalWrite(STEP_PIN_2, LOW);
+        digitalWrite(STEP_PIN_3, LOW);
+        digitalWrite(STEP_PIN_4, HIGH);
+        break;
+
+      case 1:
+        digitalWrite(STEP_PIN_1, LOW);
+        digitalWrite(STEP_PIN_2, LOW);
+        digitalWrite(STEP_PIN_3, HIGH);
+        digitalWrite(STEP_PIN_4, LOW);
+        break;
+
+      case 2:
+        digitalWrite(STEP_PIN_1, LOW);
+        digitalWrite(STEP_PIN_2, HIGH);
+        digitalWrite(STEP_PIN_3, LOW);
+        digitalWrite(STEP_PIN_4, LOW);
+        break;
+
+      case 3:
+        digitalWrite(STEP_PIN_1, HIGH);
+        digitalWrite(STEP_PIN_2, LOW);
+        digitalWrite(STEP_PIN_3, LOW);
+        digitalWrite(STEP_PIN_4, LOW);
+        break;
+    }   
+  }
+
+  step_number++;
+  if(step_number > 3){
+    step_number = 0;
+  }
+}*/
 
 
 
