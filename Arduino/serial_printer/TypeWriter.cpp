@@ -103,22 +103,17 @@ void TypeWriter::print(String message){
     s += message[i];
   }
 
-  for(int i = 0; i < wCount; i++){
-    //for(int j = 0; j < words[i].length(); j++)
-    Serial.print(words[i]);
-  }
-
   // Printing
   bool onNewLine = false;
   int rowPos = 0;
   // Looping through every word
   for(int i = 0; i < wCount; i++){
-    // Looping through every character of word -- TODO: it ain't looping through that :(
-    for(int j = 0; j < words[i].length(); i++){
+    // Looping through every character of word
+    for(int j = 0; j < words[i].length(); j++){
       for(int k = 0; k < _brailleDLength; k++){
         if(words[i][j] == _brailleDict[k].key){
           // Checking if the next word won't need new line, if so,
-          // after this row it will jump on new one
+          // after this row it will jump on new one -- TODO: fix it it's creating new line after each word
           if(rowPos + words[wCount + 1].length() > _rowLength && !onNewLine){
             onNewLine = true;
           }
