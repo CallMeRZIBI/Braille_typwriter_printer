@@ -1,6 +1,6 @@
 #include "TypeWriter.h"
 #define charsInRow 29
-#define pressDelay 150
+#define pressDelay 200
 
 const int StepPinout[] = {13,12,11,10};
 const int brailleDots[] = {2,3,4,5,6,7,8};  // 2 - is for space because it's index is 0 and other ones are then indexed like normally
@@ -10,6 +10,7 @@ TypeWriter BrailleTypeWriter(brailleDots, StepPinout);
 void setup(){
   Serial.begin(9600);
   BrailleTypeWriter.setParameters(charsInRow, pressDelay);
+  BrailleTypeWriter.test();
 }
 
 void loop(){

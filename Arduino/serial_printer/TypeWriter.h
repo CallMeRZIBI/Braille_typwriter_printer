@@ -7,6 +7,7 @@ class TypeWriter{
     TypeWriter(int solenoidPins[7], int stepperPins[4]);
     void setParameters(int rowLength, int pressDelay);
     void print(String message);
+    void test();
 
   private:
     int _brailleDots[7];
@@ -19,7 +20,9 @@ class TypeWriter{
 
     void newLine();
     void OneStep(bool dir);
+    void Split(String message, String **words, int *count);
 
+    // "Dictionary"
     typedef struct{
       char key;
       int *value;

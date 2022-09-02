@@ -75,9 +75,30 @@ void TypeWriter::setParameters(int rowLength, int pressDelay){
   Serial.println("\ndone");
 }*/
 
+void TypeWriter::test(){
+  for(int i = 0; i < sizeof(_brailleDots) / sizeof(int); i++){
+    digitalWrite(_brailleDots[i], HIGH);
+    delay(_pressDelay);
+  }
+  for(int i = 0; i < sizeof(_brailleDots) / sizeof(int); i++){
+    digitalWrite(_brailleDots[i], LOW);
+    delay(_pressDelay);
+  }
+}
+
 void TypeWriter::print(String message){
   if(message == NULL) return;
 
+  int count;
+  String *words;
+  Split(message, &words, &count);
+  for(int i = 0; i < count; i++){
+    String s = words[i];
+    Serial.println(s);
+  }
+  Serial.println(count);
+
+  /*
   // Split message into words
   int wCount = 0;
   // Counting all spaces for array size declaration
@@ -113,8 +134,8 @@ void TypeWriter::print(String message){
       for(int k = 0; k < _brailleDLength; k++){
         if(words[i][j] == _brailleDict[k].key){
           // Checking if the next word won't need new line, if so,
-          // after this row it will jump on new one -- TODO: fix it it's creating new line after each word
-          if(rowPos + words[wCount + 1].length() > _rowLength && !onNewLine){
+          // after this row it will jump on new one
+          if(rowPos + (i+1 > wCount ? 0 : words[i + 1].length()) > _rowLength && !onNewLine){
             onNewLine = true;
           }
 
@@ -146,6 +167,40 @@ void TypeWriter::print(String message){
     }
   }
   Serial.println("\ndone");
+  */
+}
+
+void TypeWriter::Split(String message, String **words, int *count){
+  // Split message into words
+  int wCount = 0;
+  // Counting all spaces for array size declaration
+  for(int i = 0; i < message.length(); i++){
+    if(message[i] == ' ') wCount++;
+    if(i == message.length() - 1) wCount++;
+  }
+
+  String *wordsArr = new String[wCount];
+
+  // Adding words to array
+  String s = "";
+  int Count = 0;
+  for(int i = 0; i < message.length(); i++){
+    if(message[i] == ' ' || i == message.length() - 1){
+      if(i == message.length()) wordsArr[Count] = s + message[i];
+      else wordsArr[Count] = s + " ";
+      s = "";
+      Count++;
+      continue;
+    }
+
+    s += message[i];
+  }
+
+  *words = wordsArr;
+  *count = Count;
+
+  // Probably also delete the array later to prevent memory leak
+  //delete[] wordsArr;
 }
 
 void TypeWriter::newLine(){
