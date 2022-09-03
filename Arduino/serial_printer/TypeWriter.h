@@ -5,15 +5,16 @@
 class TypeWriter{
   public:
     TypeWriter(int solenoidPins[7], int stepperPins[4]);
-    void setParameters(int rowLength, int pressDelay);
+    void setParameters(int rowLength, int pressDelay, double degrees);
     void print(String message);
     void test();
 
   private:
     int _brailleDots[7];
     int _stepperPins[4];
-    int _pressDelay;
-    int _rowLength;
+    int _pressDelay = 150;
+    int _rowLength = 24;
+    double _degrees = 30;
     int _brailleDotsCount = 7;
     int _stepNumber = 0;
     static const int _brailleDLength = 27;

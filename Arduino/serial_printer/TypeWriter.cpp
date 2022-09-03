@@ -30,52 +30,15 @@ TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[4]){
   _stepperPins[3] = stepperPins[3];
 }
 
-void TypeWriter::setParameters(int rowLength, int pressDelay){
+void TypeWriter::setParameters(int rowLength, int pressDelay, double degrees){
   _rowLength = rowLength;
   _pressDelay = pressDelay;
+  _degrees = degrees;
 }
 
-// Write flawless printing algorithm that isn't creating
-// new line in middle of a word etc.
-/*void TypeWriter::print(String message){
-  if(message == NULL) return;
-
-  int rowPos = 0;
-  for(int i = 0; i < message.length(); i++){
-    for(int j = 0; j < _brailleDLength; j++){
-      if(_brailleDict[j].key == message[i]){
-
-        // When on the end of line it will go to new line
-        if(rowPos >= _rowLength){
-          Serial.print("\n");
-          newLine();
-          rowPos = 0;
-        }
-
-        // Presses every corresponding solenoid to the character
-        for(int k = 0; k < _brailleDict[j].count; k++){
-          Serial.print(_brailleDict[j].value[k]);
-          digitalWrite(_brailleDots[_brailleDict[j].value[k]], HIGH);
-        }
-
-        Serial.print(":");
-        delay(_pressDelay);
-
-        // Releases all of those solenoids
-        for(int k = 0; k < _brailleDict[j].count; k++){
-          digitalWrite(_brailleDots[_brailleDict[j].value[k]], LOW);
-        }
-
-        delay(_pressDelay);
-        rowPos++;
-        continue;
-      }
-    }
-  }
-  Serial.println("\ndone");
-}*/
-
 void TypeWriter::test(){
+  Serial.println("Running test sequence");
+
   for(int i = 0; i < sizeof(_brailleDots) / sizeof(int); i++){
     digitalWrite(_brailleDots[i], HIGH);
     delay(_pressDelay);
@@ -84,6 +47,8 @@ void TypeWriter::test(){
     digitalWrite(_brailleDots[i], LOW);
     delay(_pressDelay);
   }
+
+  Serial.println("done");
 }
 
 void TypeWriter::print(String message){
@@ -92,50 +57,19 @@ void TypeWriter::print(String message){
   int count;
   String *words;
   Split(message, &words, &count);
-  for(int i = 0; i < count; i++){
-    String s = words[i];
-    Serial.println(s);
-  }
-  Serial.println(count);
-
-  /*
-  // Split message into words
-  int wCount = 0;
-  // Counting all spaces for array size declaration
-  for(int i = 0; i < message.length(); i++){
-    if(message[i] == ' ') wCount++;
-    if(i == message.length() - 1) wCount++;
-  }
-
-  String words[wCount];
-
-  // Adding words to array
-  String s = "";
-  int count = 0;
-  for(int i = 0; i < message.length(); i++){
-    if(message[i] == ' ' || i == message.length() - 1){
-      if(i == message.length()) words[count] = s + message[i];
-      else words[count] = s + " ";
-      s = "";
-      count++;
-      continue;
-    }
-
-    s += message[i];
-  }
 
   // Printing
   bool onNewLine = false;
   int rowPos = 0;
   // Looping through every word
-  for(int i = 0; i < wCount; i++){
+  for(int i = 0; i < count; i++){
     // Looping through every character of word
     for(int j = 0; j < words[i].length(); j++){
       for(int k = 0; k < _brailleDLength; k++){
         if(words[i][j] == _brailleDict[k].key){
           // Checking if the next word won't need new line, if so,
           // after this row it will jump on new one
-          if(rowPos + (i+1 > wCount ? 0 : words[i + 1].length()) > _rowLength && !onNewLine){
+          if(rowPos + (i+1 > count ? 0 : words[i + 1].length()) > _rowLength && !onNewLine){
             onNewLine = true;
           }
 
@@ -166,8 +100,8 @@ void TypeWriter::print(String message){
       onNewLine = false;
     }
   }
+  delete[] words;
   Serial.println("\ndone");
-  */
 }
 
 void TypeWriter::Split(String message, String **words, int *count){
@@ -198,13 +132,13 @@ void TypeWriter::Split(String message, String **words, int *count){
 
   *words = wordsArr;
   *count = Count;
-
-  // Probably also delete the array later to prevent memory leak
-  //delete[] wordsArr;
 }
 
 void TypeWriter::newLine(){
-  for(int i = 0; i < 2048 / 12; i++){
+  // Dividing 360 degrees by the degrees to spin and then dividing 2048
+  // (one spin) by te result of previous division, by that it will spin
+  // by wanted degrees
+  for(int i = 0; i < 2048 / (360 / _degrees); i++){
     OneStep(true);
     delay(2);
   }
