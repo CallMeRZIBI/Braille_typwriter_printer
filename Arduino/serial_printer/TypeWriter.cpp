@@ -73,6 +73,25 @@ void TypeWriter::print(String message){
             onNewLine = true;
           }
 
+          // Checking if character is first digit in digit sequence so it prints digit char
+          if(isdigit(words[i][j])){
+            if( j == 0 || (j != 0 && !isdigit(words[i][j-1]))){
+              for(int l = 0; l < sizeof(_numberChar) / sizeof(int); l++){
+                Serial.print(_numberChar[l]);
+                digitalWrite(_brailleDots[_numberChar[l]], HIGH);
+              }
+
+              Serial.print(":");
+              delay(_pressDelay);
+
+              for(int l = 0; l < sizeof(_numberChar) / sizeof(int); l++){
+                digitalWrite(_brailleDots[_numberChar[l]], LOW);
+              }
+
+              delay(_pressDelay);
+            }
+          }
+
           // Presses every corresponding solenoid to the character
           for(int l = 0; l < _brailleDict[k].count; l++){
             Serial.print(_brailleDict[k].value[l]);

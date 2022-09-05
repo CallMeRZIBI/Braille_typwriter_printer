@@ -1,6 +1,7 @@
 #ifndef TypeWriter_h
 #define TypeWriter_h
 #include <Arduino.h>
+#include <ctype.h>
 
 class TypeWriter{
   public:
@@ -17,7 +18,7 @@ class TypeWriter{
     double _degrees = 30;
     int _brailleDotsCount = 7;
     int _stepNumber = 0;
-    static const int _brailleDLength = 27;
+    static const int _brailleDLength = 37;
 
     void newLine();
     void OneStep(bool dir);
@@ -29,6 +30,8 @@ class TypeWriter{
       int *value;
       int count;    // Temporary
     } _brailleChar;
+
+    const int _numberChar[4] = {3,4,5,6};
 
     // I really don't know why was this the problem (probably because this is a header file)
     // but I had to add size to _brailledict to compile
@@ -58,7 +61,18 @@ class TypeWriter{
                                        {'x', new int[4]{1,3,4,6}, 4},
                                        {'y', new int[5]{1,3,4,5,6}, 5},
                                        {'z', new int[4]{1,3,5,6}, 4},
-                                       {' ', new int[1]{0}, 1}};
+                                       {' ', new int[1]{0}, 1},
+                                       {'1', new int[1]{1}, 1},
+                                       {'2', new int[2]{1,2}, 2},
+                                       {'3', new int[2]{1,4}, 2},
+                                       {'4', new int[3]{1,4,5}, 3},
+                                       {'5', new int[2]{1,5}, 2},
+                                       {'6', new int[3]{1,2,4}, 3},
+                                       {'7', new int[4]{1,2,4,5}, 4},
+                                       {'8', new int[3]{1,2,5}, 3},
+                                       {'9', new int[2]{2,4}, 2},
+                                       {'0', new int[3]{2,4,5}, 3}
+                                    };
 };
 
 #endif
