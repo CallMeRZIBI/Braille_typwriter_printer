@@ -4,7 +4,7 @@
 #define degrees 30
 
 const int StepPinout[] = {13,12,11,10};
-const int brailleDots[] = {2,3,4,5,6,7,8};  // 2 - is for space because it's index is 0 and other ones are then indexed like normally
+const int brailleDots[] = {2,3,4,5,6,7,8};  // 2 - is for space because it's index is 0 and other ones indexes are same as brailleDict
 
 TypeWriter BrailleTypeWriter(brailleDots, StepPinout);
 

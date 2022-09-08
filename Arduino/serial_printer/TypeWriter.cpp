@@ -2,6 +2,7 @@
 
 TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[4]){
   // Setting up pins for solenoids -- for some reason this doesnt work in for loop so I have to set them up like that
+  // TODO: try in in for loop cause it's not called from setup function of arduino so it should work
   pinMode(solenoidPins[0], OUTPUT);
   pinMode(solenoidPins[1], OUTPUT);
   pinMode(solenoidPins[2], OUTPUT);
