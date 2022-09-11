@@ -18,7 +18,7 @@ class TypeWriter{
     double _degrees = 30;
     int _brailleDotsCount = 7;
     int _stepNumber = 0;
-    static const int _brailleDLength = 37;
+    static const int _brailleDLength = 63;
 
     void newLine();
     void OneStep(bool dir);
@@ -61,6 +61,32 @@ class TypeWriter{
                                        {'x', new int[4]{1,3,4,6}, 4},
                                        {'y', new int[5]{1,3,4,5,6}, 5},
                                        {'z', new int[4]{1,3,5,6}, 4},
+                                       {'A', new int[1]{1}, 1},
+                                       {'B', new int[2]{1,2}, 2},
+                                       {'C', new int[2]{1,4}, 2},
+                                       {'D', new int[3]{1,4,5}, 3},
+                                       {'E', new int[2]{1,5}, 2},
+                                       {'F', new int[3]{1,2,4}, 3},
+                                       {'G', new int[4]{1,2,4,5}, 4},
+                                       {'H', new int[3]{1,2,5}, 3},
+                                       {'I', new int[2]{2,4}, 2},
+                                       {'J', new int[3]{2,4,5}, 3},
+                                       {'K', new int[2]{1,3}, 2},
+                                       {'L', new int[3]{1,2,3}, 3},
+                                       {'M', new int[3]{1,3,4}, 3},
+                                       {'N', new int[4]{1,3,4,5}, 4},
+                                       {'O', new int[3]{1,3,5}, 3},
+                                       {'P', new int[4]{1,2,3,4}, 4},
+                                       {'Q', new int[5]{1,2,3,4,5}, 5},
+                                       {'R', new int[4]{1,2,3,5}, 4},
+                                       {'S', new int[3]{2,3,4}, 3},
+                                       {'T', new int[4]{2,3,4,5}, 4},
+                                       {'U', new int[3]{1,3,6}, 3},
+                                       {'V', new int[4]{1,2,3,6}, 4},
+                                       {'W', new int[4]{2,4,5,6}, 4},
+                                       {'X', new int[4]{1,3,4,6}, 4},
+                                       {'Y', new int[5]{1,3,4,5,6}, 5},
+                                       {'Z', new int[4]{1,3,5,6}, 4},
                                        {' ', new int[1]{0}, 1},
                                        {'1', new int[1]{1}, 1},
                                        {'2', new int[2]{1,2}, 2},

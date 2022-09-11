@@ -93,6 +93,17 @@ void TypeWriter::print(String message){
             }
           }
 
+          // Checking if character is uppercase to add upperCase character - TODO: Add two chracters for upperCase if the whole word is upperCase
+          if(isUpperCase(words[i][j])){
+            Serial.print("6");
+            digitalWrite(_brailleDots[6], HIGH);
+
+            Serial.print(":");
+            delay(_pressDelay);
+
+            digitalWrite(_brailleDots[6], LOW);
+          }
+
           // Presses every corresponding solenoid to the character
           for(int l = 0; l < _brailleDict[k].count; l++){
             Serial.print(_brailleDict[k].value[l]);
