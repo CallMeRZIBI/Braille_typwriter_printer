@@ -62,12 +62,16 @@ void TypeWriter::print(String message){
   // Printing
   bool onNewLine = false;
   int rowPos = 0;
+
   // Looping through every word
   for(int i = 0; i < count; i++){
+    bool AllUpperCase = false;
+
     // Looping through every character of word
     for(int j = 0; j < words[i].length(); j++){
       for(int k = 0; k < _brailleDLength; k++){
-        if(words[i][j] == _brailleDict[k].key){
+        if(tolower(words[i][j]) == _brailleDict[k].key){
+
           // Checking if the next word won't need new line, if so,
           // after this row it will jump on new one
           if(rowPos + (i+1 > count ? 0 : words[i + 1].length()) > _rowLength && !onNewLine){
@@ -93,15 +97,53 @@ void TypeWriter::print(String message){
             }
           }
 
-          // Checking if character is uppercase to add upperCase character - TODO: Add two chracters for upperCase if the whole word is upperCase
-          if(isUpperCase(words[i][j])){
-            Serial.print("6");
-            digitalWrite(_brailleDots[6], HIGH);
+          // Checking if character is uppercase to add upperCase character
+          // Adding two upperCase characters if the whole word is upper case
+          if(isUpperCase(words[i][j]) && !AllUpperCase){
+            int upperChars = 1;
 
-            Serial.print(":");
-            delay(_pressDelay);
+            // Check if it's first upperCase in word
+            if(j == 0 || (j != 0 && words[i][j-1] == ' ')){
+              int l;
+              int upper = 0;
 
-            digitalWrite(_brailleDots[6], LOW);
+              // Loops through all the chars of the word to check if they're all upper case
+              for(l = 0; words[i][j+l] != ' '; l++){
+                Serial.println(sizeof(words[i][j+l]));
+                upper += isUpperCase(words[i][j+l]);
+
+                // There something really weird going on that with space it counts weirdly
+                // Debug
+                Serial.println("");
+                Serial.print("l: ");
+                Serial.print(l);
+                Serial.print(" uppers: ");
+                Serial.println(upper);
+              }
+              l--;
+
+              // Debug
+              Serial.println("");
+              Serial.print("l: ");
+              Serial.print(l);
+              Serial.print(" uppers: ");
+              Serial.println(upper);
+
+              if(l == upper){ // All characters of the word are upper case
+                upperChars = 2;
+                AllUpperCase = true;
+              }
+            }
+
+            for(int c = 0; c < upperChars; c++){
+              Serial.print("6");
+              digitalWrite(_brailleDots[6], HIGH);
+
+              Serial.print(":");
+              delay(_pressDelay);
+
+              digitalWrite(_brailleDots[6], LOW);
+            }
           }
 
           // Presses every corresponding solenoid to the character
