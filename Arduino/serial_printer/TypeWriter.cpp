@@ -102,31 +102,23 @@ void TypeWriter::print(String message){
           if(isUpperCase(words[i][j]) && !AllUpperCase){
             int upperChars = 1;
 
-            // Check if it's first upperCase in word
-            if(j == 0 || (j != 0 && words[i][j-1] == ' ')){
-              int l;
+            // Check if it's first upperCase in word -- when there's no space after the all upper word than it's just messing up
+            if(j == 0){
+              int l = 0;
               int upper = 0;
 
               // Loops through all the chars of the word to check if they're all upper case
-              for(l = 0; words[i][j+l] != ' '; l++){
-                Serial.println(sizeof(words[i][j+l]));
-                upper += isUpperCase(words[i][j+l]);
+              do{
+                // Idk anymore
+                if(words[i][l] == ' '){
+                  break;
+                }
 
-                // There something really weird going on that with space it counts weirdly
-                // Debug
-                Serial.println("");
-                Serial.print("l: ");
-                Serial.print(l);
-                Serial.print(" uppers: ");
-                Serial.println(upper);
-              }
-              l--;
+                upper += isUpperCase(words[i][l]);
+                l++;
+              }while(l < words[i].length());
 
-              // Debug
-              Serial.println("");
-              Serial.print("l: ");
-              Serial.print(l);
-              Serial.print(" uppers: ");
+              Serial.println(l);
               Serial.println(upper);
 
               if(l == upper){ // All characters of the word are upper case
@@ -135,6 +127,7 @@ void TypeWriter::print(String message){
               }
             }
 
+            // Printing the uppercase character, twice it it's all uppercase
             for(int c = 0; c < upperChars; c++){
               Serial.print("6");
               digitalWrite(_brailleDots[6], HIGH);
