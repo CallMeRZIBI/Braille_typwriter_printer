@@ -104,27 +104,16 @@ void TypeWriter::print(String message){
 
             // Check if it's first upperCase in word -- when there's no space after the all upper word than it's just messing up
             if(j == 0){
-              int l = 0;
-              int upper = 0;
+              upperChars = 2;
+              AllUpperCase = true;
 
-              // Loops through all the chars of the word to check if they're all upper case
-              do{
-                // Idk anymore
-                if(words[i][l] == ' '){
-                  break;
+              for(auto& c: words[i]){
+                if(!isUpperCase(static_cast<unsigned char>(c))){  // This is not working because it's giving some weird character at the end
+                  upperChars = 1;
+                  AllUpperCase = false;
                 }
-
-                upper += isUpperCase(words[i][l]);
-                l++;
-              }while(l < words[i].length());
-
-              Serial.println(l);
-              Serial.println(upper);
-
-              if(l == upper){ // All characters of the word are upper case
-                upperChars = 2;
-                AllUpperCase = true;
               }
+              Serial.println("");
             }
 
             // Printing the uppercase character, twice it it's all uppercase
@@ -159,6 +148,15 @@ void TypeWriter::print(String message){
         }
       }
     }
+
+    // Space after every word
+    Serial.print("0:");
+    digitalWrite(_brailleDots[_brailleDict[' '].value[0]], HIGH);
+    delay(_pressDelay);
+    digitalWrite(_brailleDots[_brailleDict[' '].value[0]], LOW);
+    delay(_pressDelay);
+
+    // New Line
     if(onNewLine){
       Serial.print("\n");
       newLine();
@@ -187,7 +185,7 @@ void TypeWriter::Split(String message, String **words, int *count){
   for(int i = 0; i < message.length(); i++){
     if(message[i] == ' ' || i == message.length() - 1){
       if(i == message.length()) wordsArr[Count] = s + message[i];
-      else wordsArr[Count] = s + " ";
+      else wordsArr[Count] = s; //+ " ";
       s = "";
       Count++;
       continue;
