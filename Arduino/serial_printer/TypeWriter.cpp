@@ -108,12 +108,12 @@ void TypeWriter::print(String message){
               AllUpperCase = true;
 
               for(auto& c: words[i]){
-                if(!isUpperCase(static_cast<unsigned char>(c))){  // This is not working because it's giving some weird character at the end
+                if(!isUpperCase(static_cast<unsigned char>(c)) && (int)c != 13){  // For some reason when there's just a word without space
+                                                                                  // after it it adds CR character which ASCII value is 13
                   upperChars = 1;
                   AllUpperCase = false;
                 }
               }
-              Serial.println("");
             }
 
             // Printing the uppercase character, twice it it's all uppercase
@@ -149,7 +149,7 @@ void TypeWriter::print(String message){
       }
     }
 
-    // Space after every word
+    // Space after every word, cause the word separator is also space
     Serial.print("0:");
     digitalWrite(_brailleDots[_brailleDict[' '].value[0]], HIGH);
     delay(_pressDelay);
