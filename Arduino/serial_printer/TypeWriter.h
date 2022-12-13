@@ -2,17 +2,18 @@
 #define TypeWriter_h
 #include <Arduino.h>
 #include <ctype.h>
+#include "A4988.h"
 
 class TypeWriter{
   public:
-    TypeWriter(int solenoidPins[7], int stepperPins[4]);
+    TypeWriter(int solenoidPins[7], int stepperPins[5]);
     void setParameters(int rowLength, int pressDelay, double degrees);
     void print(String message);
     void test();
 
   private:
     int _brailleDots[7];
-    int _stepperPins[4];
+    A4988 _stepper;
     int _pressDelay = 150;
     int _rowLength = 24;
     double _degrees = 30;
@@ -21,7 +22,6 @@ class TypeWriter{
     static const int _brailleDLength = 70;
 
     void newLine();
-    void OneStep(bool dir);
     void Split(String message, String **words, int *count);
 
     // "Dictionary"

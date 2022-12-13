@@ -1,6 +1,7 @@
 #include "TypeWriter.h"
 
-TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[4]){
+TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[5])
+  : _stepper(200, (short)stepperPins[0], (short)stepperPins[1], (short)stepperPins[2], (short)stepperPins[3], (short)stepperPins[4]){ // The 200 is steps per revolution
   // Setting up pins for solenoids -- for some reason this doesnt work in for loop so I have to set them up like that
   // TODO: try in in for loop cause it's not called from setup function of arduino so it should work
   pinMode(solenoidPins[0], OUTPUT);
@@ -20,15 +21,8 @@ TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[4]){
   _brailleDots[6] = solenoidPins[6];
 
   // Setting up pins for stepper Motor
-  pinMode(stepperPins[0], OUTPUT);
-  pinMode(stepperPins[1], OUTPUT);
-  pinMode(stepperPins[2], OUTPUT);
-  pinMode(stepperPins[3], OUTPUT);
-
-  _stepperPins[0] = stepperPins[0];
-  _stepperPins[1] = stepperPins[1];
-  _stepperPins[2] = stepperPins[2];
-  _stepperPins[3] = stepperPins[3];
+  // for Nema 17 ...
+  _stepper.begin(100, 16);
 }
 
 void TypeWriter::setParameters(int rowLength, int pressDelay, double degrees){
@@ -199,81 +193,6 @@ void TypeWriter::Split(String message, String **words, int *count){
 }
 
 void TypeWriter::newLine(){
-  // Dividing 360 degrees by the degrees to spin and then dividing 2048
-  // (one spin) by te result of previous division, by that it will spin
-  // by wanted degrees
-  for(int i = 0; i < 2048 / (360 / _degrees); i++){
-    OneStep(true);
-    delay(2);
-  }
-}
-
-void TypeWriter::OneStep(bool dir){
-  if(dir){
-    switch(_stepNumber){
-      case 0:
-        digitalWrite(_stepperPins[0], HIGH);
-        digitalWrite(_stepperPins[1], LOW);
-        digitalWrite(_stepperPins[2], LOW);
-        digitalWrite(_stepperPins[3], LOW);
-        break;
-
-      case 1:
-        digitalWrite(_stepperPins[0], LOW);
-        digitalWrite(_stepperPins[1], HIGH);
-        digitalWrite(_stepperPins[2], LOW);
-        digitalWrite(_stepperPins[3], LOW);
-        break;
-
-      case 2:
-        digitalWrite(_stepperPins[0], LOW);
-        digitalWrite(_stepperPins[1], LOW);
-        digitalWrite(_stepperPins[2], HIGH);
-        digitalWrite(_stepperPins[3], LOW);
-        break;
-
-      case 3:
-        digitalWrite(_stepperPins[0], LOW);
-        digitalWrite(_stepperPins[1], LOW);
-        digitalWrite(_stepperPins[2], LOW);
-        digitalWrite(_stepperPins[3], HIGH);
-        break;
-    }
-  }
-  else{
-    switch(_stepNumber){
-      case 0:
-        digitalWrite(_stepperPins[0], LOW);
-        digitalWrite(_stepperPins[1], LOW);
-        digitalWrite(_stepperPins[2], LOW);
-        digitalWrite(_stepperPins[3], HIGH);
-        break;
-
-      case 1:
-        digitalWrite(_stepperPins[0], LOW);
-        digitalWrite(_stepperPins[1], LOW);
-        digitalWrite(_stepperPins[2], HIGH);
-        digitalWrite(_stepperPins[3], LOW);
-        break;
-
-      case 2:
-        digitalWrite(_stepperPins[0], LOW);
-        digitalWrite(_stepperPins[1], HIGH);
-        digitalWrite(_stepperPins[2], LOW);
-        digitalWrite(_stepperPins[3], LOW);
-        break;
-
-      case 3:
-        digitalWrite(_stepperPins[0], HIGH);
-        digitalWrite(_stepperPins[1], LOW);
-        digitalWrite(_stepperPins[2], LOW);
-        digitalWrite(_stepperPins[3], LOW);
-        break;
-    }
-  }
-
-  _stepNumber++;
-  if(_stepNumber > 3){
-    _stepNumber = 0;
-  }
+  // Method with Nema 17 stepper motor and A4988 controller
+  _stepper.rotate((int)_degrees);
 }
