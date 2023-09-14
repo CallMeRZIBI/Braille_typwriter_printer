@@ -19,13 +19,14 @@ TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[5])
   _brailleDots[4] = solenoidPins[4];
   _brailleDots[5] = solenoidPins[5];
   _brailleDots[6] = solenoidPins[6];
-
-  // Setting up pins for stepper Motor
-  // for Nema 17 ...
-  _stepper.begin(100, 16);
 }
 
-void TypeWriter::setParameters(int rowLength, int pressDelay, double degrees){
+void TypeWriter::setUp(int rowLength, int pressDelay, double degrees){
+  // Stepper initialisation is here, because you cannot initialise it before Arduinos setup() method
+  // Maybye I also should put there pinModes, because on this forum: https://forum.arduino.cc/t/expected-initializer-before-with-my-own-library/537053/11 it is said that it's bad practise to put
+  // it before the setup() method
+  _stepper.begin(1, 1);
+  
   _rowLength = rowLength;
   _pressDelay = pressDelay;
   _degrees = degrees;
@@ -91,34 +92,42 @@ void TypeWriter::print(String message){
             }
           }
 
-          // Checking if character is uppercase to add upperCase character
-          // Adding two upperCase characters if the whole word is upper case
+          // Checking if character is uppercase to add upperCase character or upperCase character for whole word
           if(isUpperCase(words[i][j]) && !AllUpperCase){
-            int upperChars = 1;
-
-            // Check if it's first upperCase in word -- when there's no space after the all upper word than it's just messing up
+            // Check if it's first upperCase in word -- when there's no space after the all upper word then it's just messing up
             if(j == 0){
-              upperChars = 2;
               AllUpperCase = true;
 
               for(auto& c: words[i]){
                 if(!isUpperCase(static_cast<unsigned char>(c)) && (int)c != 13){  // For some reason when there's just a word without space
                                                                                   // after it it adds CR character which ASCII value is 13
-                  upperChars = 1;
                   AllUpperCase = false;
                 }
               }
             }
 
-            // Printing the uppercase character, twice it it's all uppercase
-            for(int c = 0; c < upperChars; c++){
-              Serial.print("6");
-              digitalWrite(_brailleDots[6], HIGH);
+            // Printing the uppercase character either for whole word or just one letter
+            if(AllUpperCase){
+              for(int l = 0; l < sizeof(_upperCaseWord) / sizeof(_upperCaseWord[0]); l++){
+                Serial.print(_upperCaseWord[l]);
+                digitalWrite(_upperCaseWord[l], HIGH);
+              }
 
               Serial.print(":");
               delay(_pressDelay);
 
-              digitalWrite(_brailleDots[6], LOW);
+              for(int l = 0; l < sizeof(_upperCaseWord) / sizeof(_upperCaseWord[0]); l++){
+                digitalWrite(_upperCaseWord[l], LOW);
+              }
+
+              delay(_pressDelay);
+            }else{  // Otherwise printing just uppercase character
+              Serial.print(_upperCase[0]);
+              digitalWrite(_upperCase[0], HIGH);
+              Serial.print(":");
+              delay(_pressDelay);
+              digitalWrite(_upperCase[0], LOW);
+              delay(_pressDelay);
             }
           }
 

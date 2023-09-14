@@ -10,8 +10,8 @@ TypeWriter BrailleTypeWriter(brailleDots, StepPinout);
 
 void setup(){
   Serial.begin(9600);
-  BrailleTypeWriter.setParameters(charsInRow, pressDelay, degrees);
-  //BrailleTypeWriter.test();
+  BrailleTypeWriter.setUp(charsInRow, pressDelay, degrees);
+  BrailleTypeWriter.test();
 }
 
 void loop(){

@@ -7,7 +7,7 @@
 class TypeWriter{
   public:
     TypeWriter(int solenoidPins[7], int stepperPins[5]);
-    void setParameters(int rowLength, int pressDelay, double degrees);
+    void setUp(int rowLength, int pressDelay, double degrees);
     void print(String message);
     void test();
 
@@ -32,6 +32,8 @@ class TypeWriter{
     } _brailleChar;
 
     const int _numberChar[4] = {3,4,5,6};
+    const int _upperCase[1] = {6};
+    const int _upperCaseWord[2] = {5, 6};
 
     // I really don't know why was this the problem (probably because this is a header file)
     // but I had to add size to _brailledict to compile
@@ -60,7 +62,7 @@ class TypeWriter{
                                        {'v', new int[4]{1,2,3,6}, 4},
                                        {'w', new int[4]{2,4,5,6}, 4},
                                        {'x', new int[4]{1,3,4,6}, 4},
-                                       //{'y', new int[5]{1,3,4,5,6}, 5},  // Czech one is different
+                                       {'y', new int[5]{1,3,4,5,6}, 5},
                                        {'z', new int[4]{1,3,5,6}, 4},
                                        {' ', new int[1]{0}, 1},  // End of standard
                                        {'á', new int[2]{1,6}, 2},
@@ -76,7 +78,6 @@ class TypeWriter{
                                        {'ť', new int[4]{1,2,5,6}, 4},
                                        {'ů', new int[3]{3,4,6}, 3},
                                        {'ú', new int[5]{2,3,4,5,6}, 5},
-                                       {'y', new int[5]{1,2,3,5,6}, 5},
                                        {'ý', new int[5]{1,2,3,4,6}, 5},
                                        {'ž', new int[4]{2,3,4,6}, 4},  // End of Czech extend
                                        {'1', new int[1]{1}, 1},  // Numbers
