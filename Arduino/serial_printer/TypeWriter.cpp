@@ -14,9 +14,9 @@ TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[5])
   pinMode(solenoidPins[6], OUTPUT);
 
   _brailleDots[0] = solenoidPins[0];
-  _brailleDots[1] = solenoidPins[1];
+  _brailleDots[1] = solenoidPins[3]; // These three are flipped because on Pichťák it's like this: 321 456:
   _brailleDots[2] = solenoidPins[2];
-  _brailleDots[3] = solenoidPins[3];
+  _brailleDots[3] = solenoidPins[1];
   _brailleDots[4] = solenoidPins[4];
   _brailleDots[5] = solenoidPins[5];
   _brailleDots[6] = solenoidPins[6];
@@ -27,7 +27,7 @@ void TypeWriter::setUp(int rowLength, int pressDelay, double degrees)
   // Stepper initialisation is here, because you cannot initialise it before Arduinos setup() method
   // Maybye I also should put there pinModes, because on this forum: https://forum.arduino.cc/t/expected-initializer-before-with-my-own-library/537053/11 it is said that it's bad practise to put
   // it before the setup() method
-  _stepper.begin(1, 1);
+  _stepper.begin(50, 16);
 
   _rowLength = rowLength;
   _pressDelay = pressDelay;
@@ -38,6 +38,7 @@ void TypeWriter::test()
 {
   Serial.println("Running test sequence");
 
+  // Old method of pressing keys one by one (there's no need to change it to use another arraay)
   for (int i = 0; i < sizeof(_brailleDots) / sizeof(int); i++)
   {
     digitalWrite(_brailleDots[i], HIGH);
@@ -48,6 +49,10 @@ void TypeWriter::test()
     digitalWrite(_brailleDots[i], LOW);
     delay(_pressDelay);
   }
+
+  // Testing printChar by pressing all keys
+  int testSequence[7] = {0, 1, 2, 3, 4, 5, 6};
+  printChar(testSequence, 7);
 
   Serial.println("done");
 }
@@ -77,9 +82,12 @@ void TypeWriter::print(String message)
       {
         if (tolower(words[i][j]) == _brailleDict[k].key)
         {
-
           // Checking if the next word won't need new line, if so,
           // after this row it will jump on new one
+          // TODO: Also check if the words need some special characters that make the whole printing longer, because something like
+          // ThIsSS is actually going to make it look like this:
+          // SpecialChar - T - h - SpecialChar - I - s - SpecialChar - S - SpecialChar - S
+          // Which is 3 characters longer, and that's a short example
           if (rowPos + (i + 1 > count ? 0 : words[i + 1].length()) > _rowLength && !onNewLine)
           {
             onNewLine = true;
@@ -90,21 +98,8 @@ void TypeWriter::print(String message)
           {
             if (j == 0 || (j != 0 && !isdigit(words[i][j - 1])))
             {
-              for (int l = 0; l < sizeof(_numberChar) / sizeof(int); l++)
-              {
-                Serial.print(_numberChar[l]);
-                digitalWrite(_brailleDots[_numberChar[l]], HIGH);
-              }
-
-              Serial.print(":");
-              delay(_pressDelay);
-
-              for (int l = 0; l < sizeof(_numberChar) / sizeof(int); l++)
-              {
-                digitalWrite(_brailleDots[_numberChar[l]], LOW);
-              }
-
-              delay(_pressDelay);
+              int numberCharLen = sizeof(_numberChar) / sizeof(_numberChar[0]);
+              printChar(_numberChar, numberCharLen, true);
             }
           }
 
@@ -129,50 +124,17 @@ void TypeWriter::print(String message)
             // Printing the uppercase character either for whole word or just one letter
             if (AllUpperCase)
             {
-              for (int l = 0; l < sizeof(_upperCaseWord) / sizeof(_upperCaseWord[0]); l++)
-              {
-                Serial.print(_upperCaseWord[l]);
-                digitalWrite(_upperCaseWord[l], HIGH);
-              }
-
-              Serial.print(":");
-              delay(_pressDelay);
-
-              for (int l = 0; l < sizeof(_upperCaseWord) / sizeof(_upperCaseWord[0]); l++)
-              {
-                digitalWrite(_upperCaseWord[l], LOW);
-              }
-
-              delay(_pressDelay);
+              int upperCaseWordLen = sizeof(_upperCaseWord) / sizeof(_upperCaseWord[0]);
+              printChar(_upperCaseWord, upperCaseWordLen, true);
             }
             else
             { // Otherwise printing just uppercase character
-              Serial.print(_upperCase[0]);
-              digitalWrite(_upperCase[0], HIGH);
-              Serial.print(":");
-              delay(_pressDelay);
-              digitalWrite(_upperCase[0], LOW);
-              delay(_pressDelay);
+              printChar(_upperCase, 1, true);
             }
           }
 
-          // Presses every corresponding solenoid to the character
-          for (int l = 0; l < _brailleDict[k].count; l++)
-          {
-            Serial.print(_brailleDict[k].value[l]);
-            digitalWrite(_brailleDots[_brailleDict[k].value[l]], HIGH);
-          }
-
-          Serial.print(":");
-          delay(_pressDelay);
-
-          // Releases all of those solenoids
-          for (int l = 0; l < _brailleDict[k].count; l++)
-          {
-            digitalWrite(_brailleDots[_brailleDict[k].value[l]], LOW);
-          }
-
-          delay(_pressDelay);
+          // Write character
+          printChar(_brailleDict[k].value, _brailleDict[k].count, true);
           rowPos++;
           continue;
         }
@@ -180,11 +142,7 @@ void TypeWriter::print(String message)
     }
 
     // Space after every word, cause the word separator is also space
-    Serial.print("0:");
-    digitalWrite(_brailleDots[_brailleDict[26].value[0]], HIGH);
-    delay(_pressDelay);
-    digitalWrite(_brailleDots[_brailleDict[26].value[0]], LOW);
-    delay(_pressDelay);
+    printChar(_brailleDict[26].value, _brailleDict[26].count, true);
 
     // New Line
     if (onNewLine)
@@ -197,6 +155,30 @@ void TypeWriter::print(String message)
   }
   delete[] words;
   Serial.println("\ndone");
+}
+
+void TypeWriter::printChar(int *value, int length, bool display)
+{
+  // Presses every corresponding solenoid to the character
+  for (int i = 0; i < length; i++)
+  {
+    // Send keys to serial only if display = true
+    if (display)
+      Serial.print(value[i]);
+    digitalWrite(_brailleDots[value[i]], HIGH);
+  }
+
+  if (display)
+    Serial.print(":");
+  delay(_pressDelay);
+
+  // Releases all of those solenoids
+  for (int i = 0; i < length; i++)
+  {
+    digitalWrite(_brailleDots[value[i]], LOW);
+  }
+
+  delay(_pressDelay);
 }
 
 void TypeWriter::Split(String message, String **words, int *count)
@@ -240,5 +222,5 @@ void TypeWriter::Split(String message, String **words, int *count)
 void TypeWriter::newLine()
 {
   // Method with Nema 17 stepper motor and A4988 controller
-  _stepper.rotate((int)_degrees);
+  _stepper.rotate((int)_degrees * 2.8 * (-1));
 }
