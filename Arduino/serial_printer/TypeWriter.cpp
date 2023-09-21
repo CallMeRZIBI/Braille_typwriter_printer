@@ -22,7 +22,7 @@ TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[5])
   _brailleDots[6] = solenoidPins[6];
 }
 
-void TypeWriter::setUp(int rowLength, int pressDelay, double degrees)
+void TypeWriter::setUp(int rowLength, int rowCount, int pressDelay, double degrees)
 {
   // Stepper initialisation is here, because you cannot initialise it before Arduinos setup() method
   // Maybye I also should put there pinModes, because on this forum: https://forum.arduino.cc/t/expected-initializer-before-with-my-own-library/537053/11 it is said that it's bad practise to put
@@ -30,6 +30,7 @@ void TypeWriter::setUp(int rowLength, int pressDelay, double degrees)
   _stepper.begin(50, 16);
 
   _rowLength = rowLength;
+  _rowCount = rowCount;
   _pressDelay = pressDelay;
   _degrees = degrees;
 }
@@ -57,6 +58,70 @@ void TypeWriter::test()
   Serial.println("done");
 }
 
+bool TypeWriter::checkForNewLine(int rowPos, String word)
+{
+  // Checking if the next word won't need new line
+  // "ThIsSS" is actually going to make it look like this:
+  // SpecialChar - T - h - SpecialChar - I - s - SpecialChar - S - SpecialChar - S
+  // Which is 3 characters longer, and that's a short example
+
+  // Removing last character if it's CR
+  int wordLen = word.length();
+  //if(word.indexOf(char(13)) > 0)  wordLen--;
+
+  int specialChars = 0;
+
+  // Check if it's digit
+  int numChars = 0;
+
+  for (int i = 0; i < wordLen; i++)
+  {
+    if (isdigit(word[i]))
+    {
+      if (i == 0 || (i != 0 && !isdigit(word[i - 1])))
+      {
+        numChars++;
+      }
+    }
+  }
+
+  // Check for upperCase characters
+  bool allUpper = false;
+  int upperChars = 0;
+
+  // Check if it's first upperCase in word -- when there's no space after the all upper word then it's just messing up
+  if (isUpperCase(word[0]))
+  {
+    allUpper = true;
+
+    // Looping through all characters in word
+    for (auto &c : word)
+    {
+      if (!isUpperCase(static_cast<unsigned char>(c)) && (int)c != 13)
+      { // For some reason when there's just a word without space
+        // after it it adds CR character which ASCII value is 13
+        allUpper = false;
+        break;
+      }
+    }
+  }
+
+  // If it's all uppercase there's just one special character, otherwise add special character for every single uppercase letter
+  if (allUpper)
+    upperChars = 1;
+  else
+  {
+    for (int i = 0; i < wordLen; i++)
+    {
+      if (isUpperCase(word[i]))
+        upperChars++;
+    }
+  }
+
+  specialChars = numChars + upperChars;
+  return ((specialChars + rowPos + wordLen) > _rowLength) ? true : false;
+}
+
 void TypeWriter::print(String message)
 {
   if (message == NULL)
@@ -67,32 +132,30 @@ void TypeWriter::print(String message)
   Split(message, &words, &count);
 
   // Printing
-  bool onNewLine = false;
   int rowPos = 0;
 
   // Looping through every word
   for (int i = 0; i < count; i++)
-  {
+  {    
+    // Check if this word is longer than remaining space, if so go to new line and then print the word
+    if (checkForNewLine(rowPos, words[i]))
+    {
+      Serial.print("\n");
+      newLine();
+      rowPos = 0;
+    }
+    
     bool AllUpperCase = false;
 
     // Looping through every character of word
     for (int j = 0; j < words[i].length(); j++)
     {
+      // Looping through every character of dictionary
       for (int k = 0; k < _brailleDLength; k++)
       {
+        // Comparing character of word with character from dictionary
         if (tolower(words[i][j]) == _brailleDict[k].key)
         {
-          // Checking if the next word won't need new line, if so,
-          // after this row it will jump on new one
-          // TODO: Also check if the words need some special characters that make the whole printing longer, because something like
-          // ThIsSS is actually going to make it look like this:
-          // SpecialChar - T - h - SpecialChar - I - s - SpecialChar - S - SpecialChar - S
-          // Which is 3 characters longer, and that's a short example
-          if (rowPos + (i + 1 > count ? 0 : words[i + 1].length()) > _rowLength && !onNewLine)
-          {
-            onNewLine = true;
-          }
-
           // Checking if character is first digit in digit sequence so it prints digit char
           if (isdigit(words[i][j]))
           {
@@ -143,15 +206,7 @@ void TypeWriter::print(String message)
 
     // Space after every word, cause the word separator is also space
     printChar(_brailleDict[26].value, _brailleDict[26].count, true);
-
-    // New Line
-    if (onNewLine)
-    {
-      Serial.print("\n");
-      newLine();
-      rowPos = 0;
-      onNewLine = false;
-    }
+    rowPos++;
   }
   delete[] words;
   Serial.println("\ndone");
@@ -201,7 +256,8 @@ void TypeWriter::Split(String message, String **words, int *count)
   int Count = 0;
   for (int i = 0; i < message.length(); i++)
   {
-    if (message[i] == ' ' || i == message.length() - 1)
+    // Removing spaces and last two characters wich are CR LR
+    if (message[i] == ' ' || i == message.length() - 2)
     {
       if (i == message.length())
         wordsArr[Count] = s + message[i];

@@ -8,21 +8,25 @@ class TypeWriter
 {
 public:
   TypeWriter(int solenoidPins[7], int stepperPins[5]);
-  void setUp(int rowLength, int pressDelay, double degrees);
+  void setUp(int rowLength, int rowCount, int pressDelay, double degrees);
   void print(String message);
   void test();
+
+  // Debug
+  bool checkForNewLine(int rowPos, String word);
 
 private:
   int _brailleDots[7];
   A4988 _stepper;
   int _pressDelay = 150;
   int _rowLength = 24;
+  int _rowCount = 24; // idk how many
   double _degrees = 30;
   int _brailleDotsCount = 7;
-  int _stepNumber = 0;
   static const int _brailleDLength = 70;
 
   void printChar(int *value, int length, bool display = false);
+  // bool onNewLine(int rowPos, String word);
   void newLine();
   void Split(String message, String **words, int *count);
 
