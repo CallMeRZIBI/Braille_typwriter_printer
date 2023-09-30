@@ -58,70 +58,6 @@ void TypeWriter::test()
   Serial.println("done");
 }
 
-bool TypeWriter::checkForNewLine(int rowPos, String word)
-{
-  // Checking if the next word won't need new line
-  // "ThIsSS" is actually going to make it look like this:
-  // SpecialChar - T - h - SpecialChar - I - s - SpecialChar - S - SpecialChar - S
-  // Which is 3 characters longer, and that's a short example
-
-  // Removing last character if it's CR
-  int wordLen = word.length();
-  //if(word.indexOf(char(13)) > 0)  wordLen--;
-
-  int specialChars = 0;
-
-  // Check if it's digit
-  int numChars = 0;
-
-  for (int i = 0; i < wordLen; i++)
-  {
-    if (isdigit(word[i]))
-    {
-      if (i == 0 || (i != 0 && !isdigit(word[i - 1])))
-      {
-        numChars++;
-      }
-    }
-  }
-
-  // Check for upperCase characters
-  bool allUpper = false;
-  int upperChars = 0;
-
-  // Check if it's first upperCase in word -- when there's no space after the all upper word then it's just messing up
-  if (isUpperCase(word[0]))
-  {
-    allUpper = true;
-
-    // Looping through all characters in word
-    for (auto &c : word)
-    {
-      if (!isUpperCase(static_cast<unsigned char>(c)) && (int)c != 13)
-      { // For some reason when there's just a word without space
-        // after it it adds CR character which ASCII value is 13
-        allUpper = false;
-        break;
-      }
-    }
-  }
-
-  // If it's all uppercase there's just one special character, otherwise add special character for every single uppercase letter
-  if (allUpper)
-    upperChars = 1;
-  else
-  {
-    for (int i = 0; i < wordLen; i++)
-    {
-      if (isUpperCase(word[i]))
-        upperChars++;
-    }
-  }
-
-  specialChars = numChars + upperChars;
-  return ((specialChars + rowPos + wordLen) > _rowLength) ? true : false;
-}
-
 void TypeWriter::print(String message)
 {
   if (message == NULL)
@@ -136,7 +72,7 @@ void TypeWriter::print(String message)
 
   // Looping through every word
   for (int i = 0; i < count; i++)
-  {    
+  {
     // Check if this word is longer than remaining space, if so go to new line and then print the word
     if (checkForNewLine(rowPos, words[i]))
     {
@@ -144,7 +80,7 @@ void TypeWriter::print(String message)
       newLine();
       rowPos = 0;
     }
-    
+
     bool AllUpperCase = false;
 
     // Looping through every character of word
@@ -236,6 +172,76 @@ void TypeWriter::printChar(int *value, int length, bool display)
   delay(_pressDelay);
 }
 
+bool TypeWriter::checkForNewLine(int rowPos, String word)
+{
+  // Checking if the next word won't need new line
+  // "ThIsSS" is actually going to make it look like this:
+  // SpecialChar - T - h - SpecialChar - I - s - SpecialChar - S - SpecialChar - S
+  // Which is 3 characters longer, and that's a short example
+
+  // Removing last character if it's CR
+  int wordLen = word.length();
+  // if(word.indexOf(char(13)) > 0)  wordLen--;
+
+  int specialChars = 0;
+
+  // Check if it's digit
+  int numChars = 0;
+
+  for (int i = 0; i < wordLen; i++)
+  {
+    if (isdigit(word[i]))
+    {
+      if (i == 0 || (i != 0 && !isdigit(word[i - 1])))
+      {
+        numChars++;
+      }
+    }
+  }
+
+  // Check for upperCase characters
+  bool allUpper = false;
+  int upperChars = 0;
+
+  // Check if it's first upperCase in word -- when there's no space after the all upper word then it's just messing up
+  if (isUpperCase(word[0]))
+  {
+    allUpper = true;
+
+    // Looping through all characters in word
+    for (auto &c : word)
+    {
+      if (!isUpperCase(static_cast<unsigned char>(c)) && (int)c != 13)
+      { // For some reason when there's just a word without space
+        // after it it adds CR character which ASCII value is 13
+        allUpper = false;
+        break;
+      }
+    }
+  }
+
+  // If it's all uppercase there's just one special character, otherwise add special character for every single uppercase letter
+  if (allUpper)
+    upperChars = 1;
+  else
+  {
+    for (int i = 0; i < wordLen; i++)
+    {
+      if (isUpperCase(word[i]))
+        upperChars++;
+    }
+  }
+
+  specialChars = numChars + upperChars;
+  return ((specialChars + rowPos + wordLen) > _rowLength) ? true : false;
+}
+
+void TypeWriter::newLine()
+{
+  // Method with Nema 17 stepper motor and A4988 controller
+  _stepper.rotate((int)_degrees * 2.8 * (-1));
+}
+
 void TypeWriter::Split(String message, String **words, int *count)
 {
   // Split message into words
@@ -273,10 +279,4 @@ void TypeWriter::Split(String message, String **words, int *count)
 
   *words = wordsArr;
   *count = Count;
-}
-
-void TypeWriter::newLine()
-{
-  // Method with Nema 17 stepper motor and A4988 controller
-  _stepper.rotate((int)_degrees * 2.8 * (-1));
 }

@@ -12,9 +12,6 @@ public:
   void print(String message);
   void test();
 
-  // Debug
-  bool checkForNewLine(int rowPos, String word);
-
 private:
   int _brailleDots[7];
   A4988 _stepper;
@@ -26,7 +23,7 @@ private:
   static const int _brailleDLength = 70;
 
   void printChar(int *value, int length, bool display = false);
-  // bool onNewLine(int rowPos, String word);
+  bool checkForNewLine(int rowPos, String word);
   void newLine();
   void Split(String message, String **words, int *count);
 
