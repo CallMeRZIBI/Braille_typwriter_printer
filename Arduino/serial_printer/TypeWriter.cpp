@@ -1,6 +1,6 @@
 #include "TypeWriter.h"
 
-TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[5])
+TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[6])
     : _stepper(200, (short)stepperPins[0], (short)stepperPins[1], (short)stepperPins[2], (short)stepperPins[3], (short)stepperPins[4])
 { // The 200 is steps per revolution
   // Setting up pins for solenoids -- for some reason this doesnt work in for loop so I have to set them up like that
@@ -12,6 +12,13 @@ TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[5])
   pinMode(solenoidPins[4], OUTPUT);
   pinMode(solenoidPins[5], OUTPUT);
   pinMode(solenoidPins[6], OUTPUT);
+
+  // Setting pin for A4988 drivers sleep pin
+  // TODO: Fix this on hardware level, the A4988 isn't responding when sleep is connected to arduino even if reset is connected to ground,
+  // only when i connect ground and sleep together, then it starts working, so i'll probably need some resistor for that (something like pulldown)
+  _stepperSleep = stepperPins[5];
+  pinMode(_stepperSleep, OUTPUT);
+  digitalWrite(_stepperSleep, HIGH);
 
   _brailleDots[0] = solenoidPins[0];
   _brailleDots[1] = solenoidPins[3]; // These three are flipped because on Pichťák it's like this: 321 456:
@@ -239,7 +246,10 @@ bool TypeWriter::checkForNewLine(int rowPos, String word)
 void TypeWriter::newLine()
 {
   // Method with Nema 17 stepper motor and A4988 controller
+  digitalWrite(_stepperSleep, LOW); // Waking up controller
+  delay(1);
   _stepper.rotate((int)_degrees * 2.8 * (-1));
+  digitalWrite(_stepperSleep, HIGH);
 }
 
 void TypeWriter::Split(String message, String **words, int *count)

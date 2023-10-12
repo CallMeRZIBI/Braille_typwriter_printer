@@ -15,6 +15,7 @@ public:
 private:
   int _brailleDots[7];
   A4988 _stepper;
+  int _stepperSleep;
   int _pressDelay = 150;
   int _rowLength = 24;
   int _rowCount = 24; // idk how many
