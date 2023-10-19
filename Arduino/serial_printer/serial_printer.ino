@@ -4,10 +4,15 @@
 #define pressDelay 200
 #define degrees 360/9
 
+// INPUTS
+const int stopPosBtn = A2;
+
+// OUTPTUS
+const int motorPin = A1;
 const int StepPinout[] = {13, 12, 9, 10, 11, A0};
 const int brailleDots[] = {2, 3, 4, 5, 6, 7, 8}; // 2 - is for space because it's index is 0 and other ones indexes are same as brailleDict
 
-TypeWriter BrailleTypeWriter(brailleDots, StepPinout);
+TypeWriter BrailleTypeWriter(brailleDots, StepPinout, motorPin, stopPosBtn);
 
 void setup()
 {

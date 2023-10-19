@@ -1,8 +1,18 @@
 #include "TypeWriter.h"
 
-TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[6])
-    : _stepper(200, (short)stepperPins[0], (short)stepperPins[1], (short)stepperPins[2], (short)stepperPins[3], (short)stepperPins[4])
-{ // The 200 is steps per revolution
+TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[6], int motorPin, int endPos)
+    : _stepper(200, (short)stepperPins[0], (short)stepperPins[1], (short)stepperPins[2], (short)stepperPins[3], (short)stepperPins[4])  // The 200 is steps per revolution
+{
+  // Setting pin for A4988 drivers sleep pin
+  // sleep pin is connected straight to MCU and reset must be connected to logical HIGH to be disbaled all the time
+  _stepperSleep = stepperPins[5];
+  pinMode(_stepperSleep, OUTPUT);
+  digitalWrite(_stepperSleep, LOW);
+
+  // Setting pin for motor, for horizontal movement
+  _motorPin = motorPin;
+  pinMode(_motorPin, OUTPUT);
+
   // Setting up pins for solenoids -- for some reason this doesnt work in for loop so I have to set them up like that
   // TODO: try in in for loop cause it's not called from setup function of arduino so it should work
   pinMode(solenoidPins[0], OUTPUT);
@@ -13,13 +23,6 @@ TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[6])
   pinMode(solenoidPins[5], OUTPUT);
   pinMode(solenoidPins[6], OUTPUT);
 
-  // Setting pin for A4988 drivers sleep pin
-  // TODO: Fix this on hardware level, the A4988 isn't responding when sleep is connected to arduino even if reset is connected to ground,
-  // only when i connect ground and sleep together, then it starts working, so i'll probably need some resistor for that (something like pulldown)
-  _stepperSleep = stepperPins[5];
-  pinMode(_stepperSleep, OUTPUT);
-  digitalWrite(_stepperSleep, HIGH);
-
   _brailleDots[0] = solenoidPins[0];
   _brailleDots[1] = solenoidPins[3]; // These three are flipped because on Pichťák it's like this: 321 456:
   _brailleDots[2] = solenoidPins[2];
@@ -27,6 +30,10 @@ TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[6])
   _brailleDots[4] = solenoidPins[4];
   _brailleDots[5] = solenoidPins[5];
   _brailleDots[6] = solenoidPins[6];
+
+  // Initializing stop position button pin
+  _endPos = endPos;
+  pinMode(_endPos, INPUT);
 }
 
 void TypeWriter::setUp(int rowLength, int rowCount, int pressDelay, double degrees)
@@ -245,11 +252,18 @@ bool TypeWriter::checkForNewLine(int rowPos, String word)
 
 void TypeWriter::newLine()
 {
+  // First move horizontally the paper on the start position
+  while(!digitalRead(_endPos)){
+    digitalWrite(_motorPin, HIGH);
+  }
+  digitalWrite(_motorPin, LOW);
+
+  // Then move vertically paper on new line
   // Method with Nema 17 stepper motor and A4988 controller
-  digitalWrite(_stepperSleep, LOW); // Waking up controller
+  digitalWrite(_stepperSleep, HIGH); // Waking up controller
   delay(1);
   _stepper.rotate((int)_degrees * 2.8 * (-1));
-  digitalWrite(_stepperSleep, HIGH);
+  digitalWrite(_stepperSleep, LOW);
 }
 
 void TypeWriter::Split(String message, String **words, int *count)
