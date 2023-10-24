@@ -1,7 +1,7 @@
 #include "TypeWriter.h"
 
 TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[6], int motorPin, int endPos)
-    : _stepper(200, (short)stepperPins[0], (short)stepperPins[1], (short)stepperPins[2], (short)stepperPins[3], (short)stepperPins[4])  // The 200 is steps per revolution
+    : _stepper(200, (short)stepperPins[0], (short)stepperPins[1], (short)stepperPins[2], (short)stepperPins[3], (short)stepperPins[4]) // The 200 is steps per revolution
 {
   // Setting pin for A4988 drivers sleep pin
   // sleep pin is connected straight to MCU and reset must be connected to logical HIGH to be disbaled all the time
@@ -253,7 +253,8 @@ bool TypeWriter::checkForNewLine(int rowPos, String word)
 void TypeWriter::newLine()
 {
   // First move horizontally the paper on the start position
-  while(!digitalRead(_endPos)){
+  while (!digitalRead(_endPos))
+  {
     digitalWrite(_motorPin, HIGH);
   }
   digitalWrite(_motorPin, LOW);
@@ -262,7 +263,7 @@ void TypeWriter::newLine()
   // Method with Nema 17 stepper motor and A4988 controller
   digitalWrite(_stepperSleep, HIGH); // Waking up controller
   delay(1);
-  _stepper.rotate((int)_degrees * 2.8 * (-1));
+  _stepper.rotate((int)_degrees * 4 * (-1));
   digitalWrite(_stepperSleep, LOW);
 }
 
