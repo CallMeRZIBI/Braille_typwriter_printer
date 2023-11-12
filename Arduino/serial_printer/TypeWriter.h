@@ -9,7 +9,7 @@ class TypeWriter
 public:
   TypeWriter(int solenoidPins[7], int stepperPins[5], int motorPin, int endPos);
   void setUp(int rowLength, int rowCount, int pressDelay, double degrees);
-  void print(String message);
+  void print(String &message);
   void test();
 
 private:

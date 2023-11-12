@@ -72,7 +72,7 @@ void TypeWriter::test()
   Serial.println("done");
 }
 
-void TypeWriter::print(String message)
+void TypeWriter::print(String &message)
 {
   if (message == NULL)
     return;
@@ -253,11 +253,11 @@ bool TypeWriter::checkForNewLine(int rowPos, String word)
 void TypeWriter::newLine()
 {
   // First move horizontally the paper on the start position
-  while (!digitalRead(_endPos))
+  /*while (!digitalRead(_endPos))
   {
     digitalWrite(_motorPin, HIGH);
   }
-  digitalWrite(_motorPin, LOW);
+  digitalWrite(_motorPin, LOW);*/
 
   // Then move vertically paper on new line
   // Method with Nema 17 stepper motor and A4988 controller
