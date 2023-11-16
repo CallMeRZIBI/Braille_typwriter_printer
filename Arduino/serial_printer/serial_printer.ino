@@ -24,7 +24,12 @@ void setup()
 void loop()
 {
   String input = getInput();
-  BrailleTypeWriter.print(input);
+  if(input == "\\\r\n"){
+    BrailleTypeWriter.endPrint();
+    Serial.println("Ending print");
+  }else{
+    BrailleTypeWriter.print(input);
+  }
 }
 
 String getInput()

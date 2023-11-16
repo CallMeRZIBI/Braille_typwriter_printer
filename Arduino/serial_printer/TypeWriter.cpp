@@ -82,17 +82,15 @@ void TypeWriter::print(String &message)
   Split(message, &words, &count);
 
   // Printing
-  int rowPos = 0;
-
   // Looping through every word
   for (int i = 0; i < count; i++)
   {
     // Check if this word is longer than remaining space, if so go to new line and then print the word
-    if (checkForNewLine(rowPos, words[i]))
+    if (checkForNewLine(_rowPos, words[i]))
     {
       Serial.print("\n");
       newLine();
-      rowPos = 0;
+      _rowPos = 0;
     }
 
     bool AllUpperCase = false;
@@ -148,7 +146,7 @@ void TypeWriter::print(String &message)
 
           // Write character
           printChar(_brailleDict[k].value, _brailleDict[k].count, true);
-          rowPos++;
+          _rowPos++;
           continue;
         }
       }
@@ -156,7 +154,7 @@ void TypeWriter::print(String &message)
 
     // Space after every word, cause the word separator is also space
     printChar(_brailleDict[26].value, _brailleDict[26].count, true);
-    rowPos++;
+    _rowPos++;
   }
   delete[] words;
   Serial.println("\ndone");
@@ -184,6 +182,15 @@ void TypeWriter::printChar(int *value, int length, bool display)
   }
 
   delay(_pressDelay);
+}
+
+// Reseting row and line positions after the whole print, because I'm sending text by chunks,
+// wich are not the same size, so it's not by lines
+void TypeWriter::endPrint(){
+  // Adding newLine until the paper won't fall out (for loop with _linePos--)
+  newLine();
+  _rowPos = 0;
+  _linePos = 0;
 }
 
 bool TypeWriter::checkForNewLine(int rowPos, String word)
@@ -252,6 +259,14 @@ bool TypeWriter::checkForNewLine(int rowPos, String word)
 
 void TypeWriter::newLine()
 {
+  // If the next line wouldn't be on the paper, end the process for now
+  // TODO: Wait for inserting new paper and then just continue 
+  _linePos++;
+  if(_linePos > _rowCount)
+  {
+      // End it there
+  }
+  
   // First move horizontally the paper on the start position
   /*while (!digitalRead(_endPos))
   {
