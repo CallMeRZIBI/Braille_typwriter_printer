@@ -1,5 +1,6 @@
 using System;
 using System.IO.Ports;
+using System.Text;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -28,7 +29,7 @@ namespace Braille_typewriter_frontend
 
             form = this;
 
-            // Creating a thread for reading from Serial Port, and for writing to it
+            // Creating a thread for reading from Serial Port
             _readThread = new Thread(Read);
             _writeThread = new Thread(Write);
 
@@ -73,6 +74,8 @@ namespace Braille_typewriter_frontend
             // Starting writing to Serial Port process only if previous printing has been completed
             if (!_writeThread.IsAlive)
             {
+                _writeThread = new Thread(Write);
+                _writeThread.IsBackground = true;
                 _writeThread.Start();
             }
             else
@@ -111,6 +114,11 @@ namespace Braille_typewriter_frontend
                 }
             }
 
+            // End of printing session character, I have to send it in bytes because otherwise it just probably adds
+            // something to it and the arduino just reads something different
+            // Probably also send this signat at the start of the print if the previous print wasn't completed properly
+            byte[] my_bytes = Encoding.UTF8.GetBytes("\\\r\n");
+            _serialPort.Write(my_bytes, 0, my_bytes.Length);
             return;
         }
 
@@ -162,7 +170,7 @@ namespace Braille_typewriter_frontend
                     // Invoking (changing threads), because you cannot change form variables from different thread
                     form.SerialCommunication.Invoke((MethodInvoker)delegate
                     {
-                        form.SerialCommunication.Text += IncomeMsg + "\r\n";
+                        form.SerialCommunication.AppendText(IncomeMsg + "\r\n");
                     });
                 }
             }
