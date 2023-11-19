@@ -27,6 +27,9 @@ namespace Braille_typewriter_frontend
         {
             InitializeComponent();
 
+            // Subscribing to form closing event
+            FormClosing += new FormClosingEventHandler(Form1_FormClosing);
+
             form = this;
 
             // Creating a thread for reading from Serial Port
@@ -61,11 +64,18 @@ namespace Braille_typewriter_frontend
             SerialCommunication.WordWrap = false;
         }
 
-        private void Form1_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             _endSession = true;
-            _readThread.Interrupt();
-            _readThread.Abort();
+            while (_readThread.IsAlive)
+            {
+                SerialCommunication.Text = "Ending tasks";
+            }
+            if (_readThread.IsAlive)
+            {
+                _readThread.Interrupt();
+                _readThread.Join();
+            }
             _serialPort.Close();
         }
 
@@ -88,7 +98,7 @@ namespace Braille_typewriter_frontend
         {
             string message = SendMsg;
 
-            if (SendMsg == null) return;
+            if (message == null) return;
 
             // Splitting string into chunks
             List<string> payloads = createChunks(message, 15);
@@ -103,6 +113,7 @@ namespace Braille_typewriter_frontend
                 catch (Exception ex)
                 {
                     ShowDialogBox(ex.Message);
+                    return;
                 }
 
                 // Setting _recieved back to false after writing to Serial Port
@@ -126,7 +137,8 @@ namespace Braille_typewriter_frontend
         {
             List<string> msgParts = new List<string>();
 
-            if(!message.Contains(' ')){
+            // Cannot split one word into chunks or the total count of characters is less or equal chunk size
+            if(!message.Contains(' ') || message.Length <= chunkSize){
                 msgParts.Add(message);
                 return msgParts;
             }
@@ -214,7 +226,13 @@ namespace Braille_typewriter_frontend
             _endSession = true; // Stop Threads from inside loop
             if (!_firstPortSetup)
             {
+                while (_readThread.IsAlive) 
+                {
+                    // Waiting until thread stops
+                }
+
                 _serialPort.Close();
+                _readThread.Interrupt();
                 _readThread.Join();
                 if (_writeThread.IsAlive)
                 {
@@ -223,7 +241,6 @@ namespace Braille_typewriter_frontend
             }
             _endSession = false;    // Enable inside loops of threads
 
-            _firstPortSetup = false;
             // Complete the setup, it's only possible after getting the port name
             _serialPort.PortName = _portName;
             _serialPort.BaudRate = _baudrate;
@@ -231,18 +248,26 @@ namespace Braille_typewriter_frontend
             try
             {
                 _serialPort.Open();
-            }catch (Exception ex)
+                // The Port was set up
+                _firstPortSetup = false;
+            }
+            catch (Exception ex)
             {
                 ShowDialogBox(ex.Message);
+                return;
             }
+
+            // Creating the thread, and because I don't know if it's the first time or not
+            // and I don't really care if the thread already exists, I'll just create a new one
+            _readThread = new Thread(Read);
             _readThread.Start();
         }
 
         private static void ShowDialogBox(string text)
         {
             var formPopup = new Popup();
-            formPopup.Show();
             formPopup.DisplayText(text);
+            formPopup.ShowDialog();
         }
     }
 }

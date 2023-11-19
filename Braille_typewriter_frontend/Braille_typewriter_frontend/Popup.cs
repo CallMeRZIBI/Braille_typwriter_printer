@@ -19,7 +19,6 @@ namespace Braille_typewriter_frontend
 
         private void Popup_Load(object sender, EventArgs e)
         {
-
         }
 
         public void DisplayText(string text)
