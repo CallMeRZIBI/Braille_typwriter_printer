@@ -1,6 +1,6 @@
 #include "TypeWriter.h"
 
-TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[6], int motorPin, int endPos)
+TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[6], int motorPins[2], int endPos)
     : _stepper(200, (short)stepperPins[0], (short)stepperPins[1], (short)stepperPins[2], (short)stepperPins[3], (short)stepperPins[4]) // The 200 is steps per revolution
 {
   // Setting pin for A4988 drivers sleep pin
@@ -10,8 +10,10 @@ TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[6], int motorPin, in
   digitalWrite(_stepperSleep, LOW);
 
   // Setting pin for motor, for horizontal movement
-  _motorPin = motorPin;
-  pinMode(_motorPin, OUTPUT);
+  _motorPins[0] = motorPins[0];
+  _motorPins[1] = motorPins[1];
+  pinMode(_motorPins[0], OUTPUT);
+  pinMode(_motorPins[1], OUTPUT);
 
   // Setting up pins for solenoids -- for some reason this doesnt work in for loop so I have to set them up like that
   // TODO: try in in for loop cause it's not called from setup function of arduino so it should work
@@ -42,6 +44,9 @@ void TypeWriter::setUp(int rowLength, int rowCount, int pressDelay, double degre
   // Maybye I also should put there pinModes, because on this forum: https://forum.arduino.cc/t/expected-initializer-before-with-my-own-library/537053/11 it is said that it's bad practise to put
   // it before the setup() method
   _stepper.begin(50, 16);
+
+  digitalWrite(_motorPins[0], LOW);
+  digitalWrite(_motorPins[1], LOW);
 
   _rowLength = rowLength;
   _rowCount = rowCount;
@@ -268,11 +273,13 @@ void TypeWriter::newLine()
   }
   
   // First move horizontally the paper on the start position
-  /*while (!digitalRead(_endPos))
+  while (!digitalRead(_endPos))
   {
-    digitalWrite(_motorPin, HIGH);
+    digitalWrite(_motorPins[0], HIGH);
+    digitalWrite(_motorPins[1], LOW);
   }
-  digitalWrite(_motorPin, LOW);*/
+  digitalWrite(_motorPins[0], LOW);
+  digitalWrite(_motorPins[1], LOW);
 
   // Then move vertically paper on new line
   // Method with Nema 17 stepper motor and A4988 controller
