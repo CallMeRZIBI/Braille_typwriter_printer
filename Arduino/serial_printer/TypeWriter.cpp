@@ -178,7 +178,19 @@ void TypeWriter::printChar(int *value, int length, bool display)
 
   if (display)
     Serial.print(":");
-  delay(_pressDelay);
+
+  // Unwinching a bit of string, because it's too much force for the typewriter
+  int MUnT = 40;
+  digitalWrite(_motorPins[0], LOW);
+  digitalWrite(_motorPins[1], HIGH);
+  
+  delay(MUnT);
+
+  digitalWrite(_motorPins[0], LOW);
+  digitalWrite(_motorPins[1], LOW);
+
+  // Waiting for a bit because of the mechanism of typewriter
+  delay(_pressDelay - MUnT);
 
   // Releases all of those solenoids
   for (int i = 0; i < length; i++)
@@ -271,7 +283,9 @@ void TypeWriter::newLine()
   {
       // End it there
   }
-  
+
+  // When just debugging, press the end of line button after ending print,
+  // because it's waiting for it to hit the end
   // First move horizontally the paper on the start position
   while (!digitalRead(_endPos))
   {
