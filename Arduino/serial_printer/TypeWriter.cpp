@@ -204,8 +204,15 @@ void TypeWriter::printChar(int *value, int length, bool display)
 // Reseting row and line positions after the whole print, because I'm sending text by chunks,
 // wich are not the same size, so it's not by lines
 void TypeWriter::endPrint(){
-  // Adding newLine until the paper won't fall out (for loop with _linePos--)
-  newLine();
+  // In the newLine function, the _linePos is incremented, so to prevent it getting larger
+  // than the rowCount just nulling it now and after the whole unwinding
+  _linePos = 0;
+  
+  // Returning the paper by rotating it by the number of left lines
+  for(int i = 0; i < _rowCount - _linePos; i++){
+    newLine();  
+  }
+  
   _rowPos = 0;
   _linePos = 0;
 }
@@ -284,8 +291,6 @@ void TypeWriter::newLine()
       // End it there
   }
 
-  // When just debugging, press the end of line button after ending print,
-  // because it's waiting for it to hit the end
   // First move horizontally the paper on the start position
   while (!digitalRead(_endPos))
   {
