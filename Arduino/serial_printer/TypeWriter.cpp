@@ -180,17 +180,16 @@ void TypeWriter::printChar(int *value, int length, bool display)
     Serial.print(":");
 
   // Unwinching a bit of string, because it's too much force for the typewriter
-  int MUnT = 40;
   digitalWrite(_motorPins[0], LOW);
   digitalWrite(_motorPins[1], HIGH);
   
-  delay(MUnT);
+  delay(_MUnT);
 
   digitalWrite(_motorPins[0], LOW);
   digitalWrite(_motorPins[1], LOW);
 
   // Waiting for a bit because of the mechanism of typewriter
-  delay(_pressDelay - MUnT);
+  delay(_pressDelay - _MUnT);
 
   // Releases all of those solenoids
   for (int i = 0; i < length; i++)
@@ -210,7 +209,7 @@ void TypeWriter::endPrint(){
   
   // Returning the paper by rotating it by the number of left lines
   for(int i = 0; i < _rowCount - _linePos; i++){
-    newLine();  
+    newLine(false);  
   }
   
   _rowPos = 0;
@@ -281,7 +280,7 @@ bool TypeWriter::checkForNewLine(int rowPos, String word)
   return ((specialChars + rowPos + wordLen) > _rowLength) ? true : false;
 }
 
-void TypeWriter::newLine()
+void TypeWriter::newLine(bool unwind = true)
 {
   // If the next line wouldn't be on the paper, end the process for now
   // TODO: Wait for inserting new paper and then just continue 
@@ -306,6 +305,17 @@ void TypeWriter::newLine()
   delay(1);
   _stepper.rotate((int)_degrees * 4 * (-1));
   digitalWrite(_stepperSleep, LOW);
+
+  // Unwind a bit of string, so there is no resistance when printing new letter
+  if(unwind){
+    digitalWrite(_motorPins[0], LOW);
+    digitalWrite(_motorPins[1], HIGH);
+  
+    delay(_MUnT);
+  
+    digitalWrite(_motorPins[0], LOW);
+    digitalWrite(_motorPins[1], LOW);
+  }
 }
 
 void TypeWriter::Split(String message, String **words, int *count)

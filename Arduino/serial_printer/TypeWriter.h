@@ -21,6 +21,7 @@ private:
   int _brailleDots[7];
   A4988 _stepper;
   int _stepperSleep;
+  int _MUnT = 40;
   int _pressDelay = 150;
   int _rowLength = 24;
   int _rowCount = 24; // idk how many
@@ -30,7 +31,7 @@ private:
 
   void printChar(int *value, int length, bool display = false);
   bool checkForNewLine(int rowPos, String word);
-  void newLine();
+  void newLine(bool unwind = true);
   void Split(String message, String **words, int *count);
 
   // "Dictionary"
