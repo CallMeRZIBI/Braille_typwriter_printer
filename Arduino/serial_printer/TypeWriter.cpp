@@ -182,7 +182,7 @@ void TypeWriter::printChar(int *value, int length, bool display)
   // Unwinching a bit of string, because it's too much force for the typewriter
   digitalWrite(_motorPins[0], LOW);
   digitalWrite(_motorPins[1], HIGH);
-  
+
   delay(_MUnT);
 
   digitalWrite(_motorPins[0], LOW);
@@ -202,16 +202,18 @@ void TypeWriter::printChar(int *value, int length, bool display)
 
 // Reseting row and line positions after the whole print, because I'm sending text by chunks,
 // wich are not the same size, so it's not by lines
-void TypeWriter::endPrint(){
+void TypeWriter::endPrint()
+{
   // In the newLine function, the _linePos is incremented, so to prevent it getting larger
   // than the rowCount just nulling it now and after the whole unwinding
   _linePos = 0;
-  
+
   // Returning the paper by rotating it by the number of left lines
-  for(int i = 0; i < _rowCount - _linePos; i++){
-    newLine(false);  
+  for (int i = 0; i < _rowCount - _linePos; i++)
+  {
+    newLine(false);
   }
-  
+
   _rowPos = 0;
   _linePos = 0;
 }
@@ -283,11 +285,12 @@ bool TypeWriter::checkForNewLine(int rowPos, String word)
 void TypeWriter::newLine(bool unwind = true)
 {
   // If the next line wouldn't be on the paper, end the process for now
-  // TODO: Wait for inserting new paper and then just continue 
+  // TODO: Wait for inserting new paper and then just continue
   _linePos++;
-  if(_linePos > _rowCount)
+  if (_linePos > _rowCount)
   {
-      // End it there
+    // End it there
+    endPrint();
   }
 
   // First move horizontally the paper on the start position
@@ -307,12 +310,13 @@ void TypeWriter::newLine(bool unwind = true)
   digitalWrite(_stepperSleep, LOW);
 
   // Unwind a bit of string, so there is no resistance when printing new letter
-  if(unwind){
+  if (unwind)
+  {
     digitalWrite(_motorPins[0], LOW);
     digitalWrite(_motorPins[1], HIGH);
-  
+
     delay(_MUnT);
-  
+
     digitalWrite(_motorPins[0], LOW);
     digitalWrite(_motorPins[1], LOW);
   }
