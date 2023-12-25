@@ -204,15 +204,20 @@ void TypeWriter::printChar(int *value, int length, bool display)
 // wich are not the same size, so it's not by lines
 void TypeWriter::endPrint()
 {
-  // In the newLine function, the _linePos is incremented, so to prevent it getting larger
-  // than the rowCount just nulling it now and after the whole unwinding
-  _linePos = 0;
-
-  // Returning the paper by rotating it by the number of left lines
-  for (int i = 0; i < _rowCount - _linePos; i++)
+  // Getting the holder on the starting position, so that it can be rotated
+  while (!digitalRead(_endPos))
   {
-    newLine(false);
+    digitalWrite(_motorPins[0], HIGH);
+    digitalWrite(_motorPins[1], LOW);
   }
+  digitalWrite(_motorPins[0], LOW);
+  digitalWrite(_motorPins[1], LOW);
+  
+  // Returning the paper by rotating it the number of left lines
+  digitalWrite(_stepperSleep, HIGH); // Waking up controller
+  delay(1);
+  _stepper.rotate((int)_degrees * 4 * (-1) * (_rowCount - _linePos));
+  digitalWrite(_stepperSleep, LOW);
 
   _rowPos = 0;
   _linePos = 0;
@@ -282,7 +287,7 @@ bool TypeWriter::checkForNewLine(int rowPos, String word)
   return ((specialChars + rowPos + wordLen) > _rowLength) ? true : false;
 }
 
-void TypeWriter::newLine(bool unwind = true)
+void TypeWriter::newLine()
 {
   // If the next line wouldn't be on the paper, end the process for now
   // TODO: Wait for inserting new paper and then just continue
@@ -310,16 +315,13 @@ void TypeWriter::newLine(bool unwind = true)
   digitalWrite(_stepperSleep, LOW);
 
   // Unwind a bit of string, so there is no resistance when printing new letter
-  if (unwind)
-  {
-    digitalWrite(_motorPins[0], LOW);
-    digitalWrite(_motorPins[1], HIGH);
+  digitalWrite(_motorPins[0], LOW);
+  digitalWrite(_motorPins[1], HIGH);
 
-    delay(_MUnT);
+  delay(_MUnT);
 
-    digitalWrite(_motorPins[0], LOW);
-    digitalWrite(_motorPins[1], LOW);
-  }
+  digitalWrite(_motorPins[0], LOW);
+  digitalWrite(_motorPins[1], LOW);
 }
 
 void TypeWriter::Split(String message, String **words, int *count)

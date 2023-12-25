@@ -31,7 +31,7 @@ private:
 
   void printChar(int *value, int length, bool display = false);
   bool checkForNewLine(int rowPos, String word);
-  void newLine(bool unwind = true);
+  void newLine();
   void Split(String message, String **words, int *count);
 
   // "Dictionary"
