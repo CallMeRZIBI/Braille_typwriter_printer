@@ -40,7 +40,7 @@ namespace Braille_typewriter_frontend
             _serialPort = new SerialPort();
 
             // User changable setting for serial port
-            addPortNamesToDropDown();
+            updatePortNamesDropDown();
             _baudrate = int.Parse(baudRateValue.Text);
             _portName = _serialPort.PortName;
 
@@ -138,7 +138,8 @@ namespace Braille_typewriter_frontend
             List<string> msgParts = new List<string>();
 
             // Cannot split one word into chunks or the total count of characters is less or equal chunk size
-            if(!message.Contains(' ') || message.Length <= chunkSize){
+            if (!message.Contains(' ') || message.Length <= chunkSize)
+            {
                 msgParts.Add(message);
                 return msgParts;
             }
@@ -188,12 +189,19 @@ namespace Braille_typewriter_frontend
             }
         }
 
-        private void addPortNamesToDropDown()
+        private void updatePortNamesDropDown()
         {
+            portNameDropDown.Items.Clear();
+
             foreach (string s in SerialPort.GetPortNames())
             {
                 portNameDropDown.Items.Add(s);
             }
+        }
+
+        private void portNameDropDown_Click(object sender, EventArgs e)
+        {
+            updatePortNamesDropDown();
         }
 
         private void portNameDropDown_SelectedIndexChanged(object sender, EventArgs e)
@@ -226,7 +234,7 @@ namespace Braille_typewriter_frontend
             _endSession = true; // Stop Threads from inside loop
             if (!_firstPortSetup)
             {
-                while (_readThread.IsAlive) 
+                while (_readThread.IsAlive)
                 {
                     // Waiting until thread stops
                 }

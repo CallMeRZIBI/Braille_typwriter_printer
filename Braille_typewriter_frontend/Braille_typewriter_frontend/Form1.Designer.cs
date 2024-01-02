@@ -65,6 +65,7 @@
             portNameDropDown.Size = new Size(121, 23);
             portNameDropDown.TabIndex = 2;
             portNameDropDown.SelectedIndexChanged += portNameDropDown_SelectedIndexChanged;
+            portNameDropDown.Click += portNameDropDown_Click;
             // 
             // Port_label
             // 
