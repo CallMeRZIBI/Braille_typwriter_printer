@@ -57,22 +57,14 @@ void TypeWriter::setUp(int rowLength, int rowCount, int pressDelay, double degre
 void TypeWriter::test()
 {
   Serial.println("Running test sequence");
-
-  // Old method of pressing keys one by one (there's no need to change it to use another arraay)
-  for (int i = 0; i < sizeof(_brailleDots) / sizeof(int); i++)
-  {
-    digitalWrite(_brailleDots[i], HIGH);
-    delay(_pressDelay);
-  }
-  for (int i = 0; i < sizeof(_brailleDots) / sizeof(int); i++)
-  {
-    digitalWrite(_brailleDots[i], LOW);
-    delay(_pressDelay);
-  }
-
-  // Testing printChar by pressing all keys
   int testSequence[7] = {0, 1, 2, 3, 4, 5, 6};
+
   printChar(testSequence, 7);
+
+  for(int i = 0; i < 7; i++){
+    int actualSolenoid[] = {testSequence[i]};
+    printChar(actualSolenoid, 1);
+  }
 
   Serial.println("done");
 }

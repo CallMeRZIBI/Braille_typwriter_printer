@@ -18,7 +18,7 @@ void setup()
 {
   Serial.begin(9600);
   BrailleTypeWriter.setUp(charsInRow, numberOfRows, pressDelay, degrees);
-  // BrailleTypeWriter.test();
+  BrailleTypeWriter.test();
 }
 
 void loop()
