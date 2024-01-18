@@ -150,7 +150,7 @@ namespace Braille_typewriter_frontend
             for (int i = 0; i < words.Length; i++)
             {
                 chunk += words[i] + " ";
-                if (chunk.Length >= chunkSize)
+                if (chunk.Length >= chunkSize || i == words.Length - 1)
                 {
                     msgParts.Add(chunk);
                     chunk = "";

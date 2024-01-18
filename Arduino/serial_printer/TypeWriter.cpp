@@ -59,11 +59,11 @@ void TypeWriter::test()
   Serial.println("Running test sequence");
   int testSequence[7] = {0, 1, 2, 3, 4, 5, 6};
 
-  printChar(testSequence, 7);
+  printChar(testSequence, 7, true);
 
   for(int i = 0; i < 7; i++){
     int actualSolenoid[] = {testSequence[i]};
-    printChar(actualSolenoid, 1);
+    printChar(actualSolenoid, 1, true);
   }
 
   Serial.println("done");
@@ -85,9 +85,7 @@ void TypeWriter::print(String &message)
     // Check if this word is longer than remaining space, if so go to new line and then print the word
     if (checkForNewLine(_rowPos, words[i]))
     {
-      Serial.print("\n");
       newLine();
-      _rowPos = 0;
     }
 
     bool AllUpperCase = false;
@@ -95,6 +93,12 @@ void TypeWriter::print(String &message)
     // Looping through every character of word
     for (int j = 0; j < words[i].length(); j++)
     {
+      // Checking for special characters in word
+      if(words[i][j] == '\r'){
+        newLine();
+        // Skipping to next character if this character is special character
+        continue;  
+      }
       // Looping through every character of dictionary
       for (int k = 0; k < _brailleDLength; k++)
       {
@@ -224,7 +228,7 @@ bool TypeWriter::checkForNewLine(int rowPos, String word)
 
   // Removing last character if it's CR
   int wordLen = word.length();
-  // if(word.indexOf(char(13)) > 0)  wordLen--;
+  if(word.indexOf(char(13)) > 0)  wordLen--;
 
   int specialChars = 0;
 
@@ -284,6 +288,7 @@ void TypeWriter::newLine()
   // If the next line wouldn't be on the paper, end the process for now
   // TODO: Wait for inserting new paper and then just continue
   _linePos++;
+  _rowPos = 0;
   if (_linePos > _rowCount)
   {
     // End it there
@@ -314,6 +319,8 @@ void TypeWriter::newLine()
 
   digitalWrite(_motorPins[0], LOW);
   digitalWrite(_motorPins[1], LOW);
+
+  Serial.print("\n");
 }
 
 void TypeWriter::Split(String message, String **words, int *count)
@@ -323,7 +330,7 @@ void TypeWriter::Split(String message, String **words, int *count)
   // Counting all spaces for array size declaration
   for (int i = 0; i < message.length(); i++)
   {
-    if (message[i] == ' ')
+    if (message[i] == ' ' || (message[i] == '\r' && message[i+1] == '\n'))
       wCount++;
     if (i == message.length() - 1)
       wCount++;
