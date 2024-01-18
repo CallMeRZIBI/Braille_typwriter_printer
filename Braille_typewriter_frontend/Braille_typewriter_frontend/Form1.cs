@@ -138,7 +138,7 @@ namespace Braille_typewriter_frontend
             List<string> msgParts = new List<string>();
 
             // Cannot split one word into chunks or the total count of characters is less or equal chunk size
-            if (!message.Contains(' ') || message.Length <= chunkSize)
+            if ((!message.Contains(' ') && message.Length <= chunkSize) || message.Length <= chunkSize)
             {
                 msgParts.Add(message);
                 return msgParts;
@@ -149,6 +149,21 @@ namespace Braille_typewriter_frontend
             string chunk = "";
             for (int i = 0; i < words.Length; i++)
             {
+                // Split the word if it's longer than chunkSize + 10
+                if (words[i].Length > chunkSize + 10)
+                {
+                    int subIndex = 1;
+                    while (subIndex * chunkSize <= words[i].Length)
+                    {
+                        chunk += words[i].Substring((subIndex - 1) * chunkSize, (subIndex * chunkSize) > words[i].Length ? words[i].Length : chunkSize);
+                        msgParts.Add(chunk);
+                        subIndex++;
+                        chunk = "";
+                    }
+                    continue;
+                }
+
+                // Otherwise make chunks conatining words with max chunk length of chunkSize
                 chunk += words[i] + " ";
                 if (chunk.Length >= chunkSize || i == words.Length - 1)
                 {

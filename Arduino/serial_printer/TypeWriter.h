@@ -7,7 +7,7 @@
 class TypeWriter
 {
 public:
-  TypeWriter(int solenoidPins[7], int stepperPins[5], int motorPins[2], int endPos);
+  TypeWriter(int solenoidPins[7], int stepperPins[5], int motorPins[2], int endPos, int paperInserted);
   void setUp(int rowLength, int rowCount, int pressDelay, double degrees);
   void print(String &message);
   void endPrint();
@@ -15,6 +15,7 @@ public:
 
 private:
   int _endPos;
+  int _paperInserted;
   int _motorPins[2];
   int _rowPos = 0;
   int _linePos = 0;

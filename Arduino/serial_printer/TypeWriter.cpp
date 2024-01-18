@@ -1,6 +1,6 @@
 #include "TypeWriter.h"
 
-TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[6], int motorPins[2], int endPos)
+TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[6], int motorPins[2], int endPos, int paperInserted)
     : _stepper(200, (short)stepperPins[0], (short)stepperPins[1], (short)stepperPins[2], (short)stepperPins[3], (short)stepperPins[4]) // The 200 is steps per revolution
 {
   // Setting pin for A4988 drivers sleep pin
@@ -36,6 +36,10 @@ TypeWriter::TypeWriter(int solenoidPins[7], int stepperPins[6], int motorPins[2]
   // Initializing stop position button pin
   _endPos = endPos;
   pinMode(_endPos, INPUT);
+
+  // Initializing paper inserted button pin
+  _paperInserted = paperInserted;
+  pinMode(_paperInserted, INPUT);
 }
 
 void TypeWriter::setUp(int rowLength, int rowCount, int pressDelay, double degrees)
@@ -99,12 +103,15 @@ void TypeWriter::print(String &message)
         // Skipping to next character if this character is special character
         continue;  
       }
+      
       // Looping through every character of dictionary
       for (int k = 0; k < _brailleDLength; k++)
       {
+        
         // Comparing character of word with character from dictionary
         if (tolower(words[i][j]) == _brailleDict[k].key)
         {
+          
           // Checking if character is first digit in digit sequence so it prints digit char
           if (isdigit(words[i][j]))
           {
@@ -291,8 +298,20 @@ void TypeWriter::newLine()
   _rowPos = 0;
   if (_linePos > _rowCount)
   {
-    // End it there
+    // Eject the paper and wait for new one to be inserted
     endPrint();
+    Serial.println("Insert new paper");
+
+    // Wait for button to be pressed
+    while (!digitalRead(_paperInserted)){}
+    
+    // Loading the paper by rotating it the number of lines
+    digitalWrite(_stepperSleep, HIGH); // Waking up controller
+    delay(1);
+    _stepper.rotate((int)_degrees * 4 * _rowCount);
+    digitalWrite(_stepperSleep, LOW);
+
+    Serial.print("\n");
   }
 
   // First move horizontally the paper on the start position
