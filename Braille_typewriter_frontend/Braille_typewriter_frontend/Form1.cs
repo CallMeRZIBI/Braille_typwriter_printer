@@ -44,9 +44,12 @@ namespace Braille_typewriter_frontend
             _baudrate = int.Parse(baudRateValue.Text);
             _portName = _serialPort.PortName;
 
+            Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
             // Applying setting fro serial port
             _serialPort.BaudRate = _baudrate;
             _serialPort.Parity = Parity.None;
+            _serialPort.Encoding = Encoding.GetEncoding(28592);
             _serialPort.DataBits = 8;
             _serialPort.StopBits = StopBits.One;
             _serialPort.Handshake = Handshake.None;
@@ -108,7 +111,10 @@ namespace Braille_typewriter_frontend
                 // Writing to Serial Port
                 try
                 {
-                    _serialPort.WriteLine(payloads[i]);
+                    byte[] byte_payload = Encoding.GetEncoding(28592).GetBytes(payloads[i]);
+                    _serialPort.Write(byte_payload, 0, byte_payload.Length);
+                    _serialPort.Write("\n");
+                    //_serialPort.WriteLine(payloads[i]);
                 }
                 catch (Exception ex)
                 {

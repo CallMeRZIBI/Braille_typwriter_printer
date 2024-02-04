@@ -363,7 +363,7 @@ void TypeWriter::Split(String message, String **words, int *count)
   for (int i = 0; i < message.length(); i++)
   {
     // Removing spaces and last two characters wich are CR LR
-    if (message[i] == ' ' || i == message.length() - 2)
+    if (message[i] == ' ' || i == message.length() - 1)
     {
       if (i == message.length())
         wordsArr[Count] = s + message[i];
