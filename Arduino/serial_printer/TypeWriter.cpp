@@ -182,14 +182,7 @@ void TypeWriter::printChar(int *value, int length, bool display)
   if (display)
     Serial.print(":");
 
-  // Unwinching a bit of string, because it's too much force for the typewriter
-  digitalWrite(_motorPins[0], LOW);
-  digitalWrite(_motorPins[1], HIGH);
-
-  delay(_MUnT);
-
-  digitalWrite(_motorPins[0], LOW);
-  digitalWrite(_motorPins[1], LOW);
+  unwind();
 
   // Waiting for a bit because of the mechanism of typewriter
   delay(_pressDelay - _MUnT);
@@ -224,6 +217,15 @@ void TypeWriter::endPrint()
 
   _rowPos = 0;
   _linePos = 0;
+}
+
+// This method is just for inserting paper on the start of each print
+// It uses the insertPaper and unwind methods
+void TypeWriter::initPrint()
+{
+  insertPaper();
+  unwind();
+  Serial.println("loaded paper");
 }
 
 bool TypeWriter::checkForNewLine(int rowPos, String word)
@@ -290,21 +292,35 @@ bool TypeWriter::checkForNewLine(int rowPos, String word)
   return ((specialChars + rowPos + wordLen) > _rowLength) ? true : false;
 }
 
-void TypeWriter::newLine()
+// Unwind a bit of string, so there is no resistance when printing new letter
+void TypeWriter::unwind()
 {
-  // If the next line wouldn't be on the paper, end the process for now
-  // TODO: Wait for inserting new paper and then just continue
-  _linePos++;
-  _rowPos = 0;
-  if (_linePos > _rowCount)
-  {
-    // Eject the paper and wait for new one to be inserted
-    endPrint();
-    Serial.println("Insert new paper");
+  digitalWrite(_motorPins[0], LOW);
+  digitalWrite(_motorPins[1], HIGH);
 
-    // Wait for button to be pressed
-    while (!digitalRead(_paperInserted)){}
+  delay(_MUnT);
+
+  digitalWrite(_motorPins[0], LOW);
+  digitalWrite(_motorPins[1], LOW);
+}
+
+// Waiting for user to insert paper
+void TypeWriter::insertPaper()
+{
+    Serial.println("Insert paper");
     
+    // Wait for button to get pressed
+    while (!digitalRead(_paperInserted)){}
+
+    // First move horizontally the paper on the start position
+    while (!digitalRead(_endPos))
+    {
+      digitalWrite(_motorPins[0], HIGH);
+      digitalWrite(_motorPins[1], LOW);
+    }
+    digitalWrite(_motorPins[0], LOW);
+    digitalWrite(_motorPins[1], LOW);
+
     // Loading the paper by rotating it the number of lines
     digitalWrite(_stepperSleep, HIGH); // Waking up controller
     delay(1);
@@ -312,6 +328,22 @@ void TypeWriter::newLine()
     digitalWrite(_stepperSleep, LOW);
 
     Serial.print("\n");
+}
+
+// Moving on new line
+void TypeWriter::newLine()
+{
+  Serial.print("\n");
+  
+  _linePos++;
+  _rowPos = 0;
+
+  // If the new line would be out of the range of paper, then it ejects paper and waits for user to insert new one
+  if (_linePos > _rowCount)
+  {
+    // Eject the paper and wait for new one to be inserted
+    endPrint();
+    insertPaper();
   }
 
   // First move horizontally the paper on the start position
@@ -330,16 +362,7 @@ void TypeWriter::newLine()
   _stepper.rotate((int)_degrees * 4 * (-1));
   digitalWrite(_stepperSleep, LOW);
 
-  // Unwind a bit of string, so there is no resistance when printing new letter
-  digitalWrite(_motorPins[0], LOW);
-  digitalWrite(_motorPins[1], HIGH);
-
-  delay(_MUnT);
-
-  digitalWrite(_motorPins[0], LOW);
-  digitalWrite(_motorPins[1], LOW);
-
-  Serial.print("\n");
+  unwind();
 }
 
 void TypeWriter::Split(String message, String **words, int *count)

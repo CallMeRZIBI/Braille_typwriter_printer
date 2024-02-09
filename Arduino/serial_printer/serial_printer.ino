@@ -15,6 +15,8 @@ const int brailleDots[] = {2, 3, 4, 5, 6, 7, 8}; // 2 - is for space because it'
 
 TypeWriter BrailleTypeWriter(brailleDots, StepPinout, motorPins, stopPosBtn, paperInsertedBtn);
 
+bool started = false;
+
 void setup()
 {
   Serial.begin(9600);
@@ -25,10 +27,18 @@ void setup()
 void loop()
 {
   String input = getInput();
-  
+
+  // If the recieved message is "\\\r\n" then it initialises the print 
+  // and the second time it recieves this message it ends the print
   if(input == "\\\r\n"){
-    BrailleTypeWriter.endPrint();
-    Serial.println("Ending print");
+    if(!started){
+      BrailleTypeWriter.initPrint();
+      started = true;
+    }else{
+      BrailleTypeWriter.endPrint();
+      Serial.println("Ending print");
+      started = false;
+    }
   }else{
     BrailleTypeWriter.print(input);
   }

@@ -20,6 +20,7 @@ namespace Braille_typewriter_frontend
         private static string _portName;
         private static int _baudrate;
         private static bool _recieved;
+        private static bool _loadedPaper;
         public static string IncomeMsg;
         public static string SendMsg;
 
@@ -61,6 +62,7 @@ namespace Braille_typewriter_frontend
             _recieved = false;
             _endSession = false;
             _firstPortSetup = true;
+            _loadedPaper = false;
 
             // Adding scrollbar to serial communication texbox
             SerialCommunication.ScrollBars = ScrollBars.Vertical;
@@ -106,6 +108,16 @@ namespace Braille_typewriter_frontend
             // Splitting string into chunks
             List<string> payloads = createChunks(message, 15);
 
+            // Starting the printing by letting the user insert paper
+            // Sending the same bytes after the printing is done to remove the paper and reset data on arduino
+            byte[] start_stop = Encoding.UTF8.GetBytes("\\\r\n");
+            _serialPort.Write(start_stop, 0, start_stop.Length);
+
+            while(!_loadedPaper && !_endSession)
+            {
+                // Waiting for user to insert paper
+            }
+
             for (int i = 0; i < payloads.Count; i++)
             {
                 // Writing to Serial Port
@@ -122,20 +134,21 @@ namespace Braille_typewriter_frontend
                     return;
                 }
 
-                // Setting _recieved back to false after writing to Serial Port
-                _recieved = false;
-
                 while (!_recieved && !_endSession)
                 {
                     // Waiting for arduino to stop writing
                 }
+
+                // Setting _recieved back to false after recieving message
+                _recieved = false;
             }
 
             // End of printing session character, I have to send it in bytes because otherwise it just probably adds
             // something to it and the arduino just reads something different
-            // Probably also send this signat at the start of the print if the previous print wasn't completed properly
-            byte[] my_bytes = Encoding.UTF8.GetBytes("\\\r\n");
-            _serialPort.Write(my_bytes, 0, my_bytes.Length);
+            _serialPort.Write(start_stop, 0, start_stop.Length);
+
+            _loadedPaper = false;
+
             return;
         }
 
@@ -197,6 +210,10 @@ namespace Braille_typewriter_frontend
                 if (IncomeMsg.Contains("done"))
                 {
                     _recieved = true;
+                }
+                else if (IncomeMsg.Contains("loaded paper")) 
+                {
+                    _loadedPaper = true;
                 }
 
                 if (IncomeMsg != string.Empty && !_endSession)

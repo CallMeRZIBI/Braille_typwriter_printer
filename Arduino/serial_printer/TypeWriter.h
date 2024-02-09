@@ -10,6 +10,7 @@ public:
   TypeWriter(int solenoidPins[7], int stepperPins[5], int motorPins[2], int endPos, int paperInserted);
   void setUp(int rowLength, int rowCount, int pressDelay, double degrees);
   void print(String &message);
+  void initPrint();
   void endPrint();
   void test();
 
@@ -33,6 +34,8 @@ private:
   void printChar(int *value, int length, bool display = false);
   bool checkForNewLine(int rowPos, String word);
   void newLine();
+  void insertPaper();
+  void unwind();
   void Split(String message, String **words, int *count);
 
   // "Dictionary"
