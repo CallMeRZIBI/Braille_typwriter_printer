@@ -186,6 +186,12 @@ namespace Braille_typewriter_frontend
                 chunk += words[i] + " ";
                 if (chunk.Length >= chunkSize || i == words.Length - 1)
                 {
+                    // Removing space from the end of chunk if there is one
+                    if (chunk[chunk.Length - 1] == ' ')
+                    {
+                        chunk = chunk.Substring(0, chunk.Length - 1);
+                    }
+
                     msgParts.Add(chunk);
                     chunk = "";
                 }
