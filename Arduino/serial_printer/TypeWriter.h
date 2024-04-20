@@ -43,7 +43,7 @@ private:
   {
     char key;
     int *value;
-    int count; // Temporary
+    int count;
   } _brailleChar;
 
   const int _numberChar[4] = {3, 4, 5, 6};
@@ -79,7 +79,7 @@ private:
                                                       {'x', new int[4]{1, 3, 4, 6}, 4},
                                                       {'y', new int[5]{1, 3, 4, 5, 6}, 5},
                                                       {'z', new int[4]{1, 3, 5, 6}, 4},
-                                                      {' ', new int[1]{0}, 1}, // End of standard
+                                                      {' ', new int[1]{0}, 1},                                            // End of standard
                                                       {0b11111111111111111111111111100001, new int[2]{1, 6}, 2},          // á
                                                       {0b11111111111111111111111111101000, new int[3]{1, 4, 6}, 3},       // č
                                                       {0b11111111111111111111111111101111, new int[4]{1, 4, 5, 6}, 4},    // ď
@@ -94,10 +94,10 @@ private:
                                                       {0b11111111111111111111111111111001, new int[3]{3, 4, 6}, 3},       // ů
                                                       {0b11111111111111111111111111111010, new int[5]{2, 3, 4, 5, 6}, 5}, // ú
                                                       {0b11111111111111111111111111111101, new int[5]{1, 2, 3, 4, 6}, 5}, // ý
-                                                      {0b11111111111111111111111110111110, new int[4]{2, 3, 4, 6}, 4},    // ž 
+                                                      {0b11111111111111111111111110111110, new int[4]{2, 3, 4, 6}, 4},    // ž
                                                       // End of Czech extend in bytes, because I cannot send those characters using UTF8 and this is the most
                                                       // reliable way I discovered of translating it to the right characters
-                                                      {'1', new int[1]{1}, 1},          // Numbers
+                                                      {'1', new int[1]{1}, 1}, // Numbers
                                                       {'2', new int[2]{1, 2}, 2},
                                                       {'3', new int[2]{1, 4}, 2},
                                                       {'4', new int[3]{1, 4, 5}, 3},
